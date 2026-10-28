@@ -1,0 +1,9 @@
+__pycache__/
+*.pyc
+.ipynb_checkpoints/
+animations/out/*preview*
+animations/out/*.log
+animations/out/grid_*
+animations/out/fastar_grid.npz
+slides/*.pdf
+.venv/

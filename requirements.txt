@@ -1,0 +1,9 @@
+numpy
+scipy
+matplotlib
+jupyterlab
+fastar-astro
+# galevo / GalIMF (notebook 04)
+astropy
+pandas
+tqdm
