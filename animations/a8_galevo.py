@@ -63,7 +63,7 @@ def draw(tn):
     axb.bar(range(len(keys)), np.nan_to_num(vals), color=[STYLE[k][0] for k in keys],
             hatch=None, alpha=0.9, edgecolor=FG, linewidth=[2 if STYLE[k][1] == "--" else 0 for k in keys])
     axb.set_xticks(range(len(keys)), [STYLE[k][2].replace(", ", "\n") for k in keys], fontsize=12)
-    axb.set_ylim(-0.1, 0.55); axb.set_ylabel("stars' [Mg/Fe]", fontsize=16); axb.axhline(0, color=GREY, lw=1)
+    axb.set_ylim(-0.25, 0.55); axb.set_ylabel("stars' [Mg/Fe]", fontsize=16); axb.axhline(0, color=GREY, lw=1)
     clock.set_text(f"t = {tn*1000:,.0f} Myr" if tn < 1 else f"t = {tn:.1f} Gyr")
 
 
