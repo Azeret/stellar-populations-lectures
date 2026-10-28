@@ -20,13 +20,14 @@ GREY = RGBColor(0x9A, 0x9A, 0xB5); ORANGE = RGBColor(0xF5, 0xA6, 0x23); PINK = R
 GREEN = RGBColor(0x5C, 0xC8, 0xA1)
 FONT = "Montserrat"
 W, H = Inches(13.333), Inches(7.5)
-SLIDO = "slido.com  ·  #CODE"     # replace with your event code
+SLIDO_CODES = {"L1": "#2458697", "L2": "#1642685"}   # Slido event codes
 
 
 class Deck:
     def __init__(self, title):
         self.p = Presentation(); self.p.slide_width, self.p.slide_height = W, H
         self.title = title; self.n = 0
+        self.slido_footer = f"slido.com  \u00b7  {SLIDO_CODES.get(title, '#CODE')}"
 
     # -------------------------------------------------------------- helpers
     def _slide(self, notes=""):
@@ -122,7 +123,7 @@ class Deck:
         if options:
             self._text(s, Inches(0.9), Inches(3.9), Inches(11.6), Inches(3.0),
                        [f"{chr(65 + i)}   {o}" for i, o in enumerate(options)], 26, WHITE)
-        self._text(s, Inches(0.6), Inches(6.8), Inches(12.1), Inches(0.5), SLIDO, 18, GREEN, True, PP_ALIGN.RIGHT)
+        self._text(s, Inches(0.6), Inches(6.8), Inches(12.1), Inches(0.5), self.slido_footer, 18, GREEN, True, PP_ALIGN.RIGHT)
         return s
 
     def insert_marker(self, what, source, notes=""):

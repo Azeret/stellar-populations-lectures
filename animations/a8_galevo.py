@@ -15,7 +15,7 @@ OUT = os.path.join(HERE, "out"); DATA = os.path.join(HERE, "..", "data", "galevo
 use_slide_style()
 WRITER = dict(fps=30, codec="libx264", extra_args=["-preset", "veryfast", "-pix_fmt", "yuv420p", "-crf", "20"])
 STYLE = {"K_fast": (ORANGE, "-", "30 Myr, Kroupa"), "K_mid": (BLUE, "-", "300 Myr, Kroupa"),
-         "K_slow": (GREEN, "-", "3 Gyr, Kroupa"), "I_fast": (ORANGE, "--", "30 Myr, IGIMF"),
+         "K_slow": (GREEN, "-", "3 Gyr, Kroupa"), "I_fast": (ORANGE, "--", "30 Myr, IGIMF"), "I_mid": (BLUE, "--", "300 Myr, IGIMF"),
          "I_slow": (GREEN, "--", "3 Gyr, IGIMF")}
 runs = {k: np.load(f) for k in STYLE for f in glob.glob(os.path.join(DATA, k + ".npz"))}
 print("runs:", list(runs))
