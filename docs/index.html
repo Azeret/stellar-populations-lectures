@@ -1,0 +1,384 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Galaxies course games</title>
+<meta name="description" content="Two classroom games on the stellar IMF and the [Mg/Fe] clock (Masaryk University, Galaxies course).">
+<style>
+  :root {
+    --bg: #1b1a2e; --panel: #24233b; --line: #3a3956; --ink: #f4f4f6; --quiet: #9a9ab5;
+    --blue: #1e8fd5; --orange: #f5a623; --pink: #ef5d8f; --green: #5cc8a1;
+  }
+  * { box-sizing: border-box; }
+  html, body { margin: 0; background: var(--bg); color: var(--ink);
+    font-family: system-ui, -apple-system, "Segoe UI", Roboto, sans-serif; font-size: 16px; line-height: 1.45; }
+  main { max-width: 760px; margin: 0 auto; padding: 16px 16px 48px; }
+  h1 { color: var(--blue); font-size: 1.6rem; margin: 8px 0 4px; }
+  h2 { font-size: 1.25rem; margin: 0 0 6px; }
+  p { margin: 6px 0; }
+  .quiet { color: var(--quiet); font-size: .9rem; }
+  nav.tabs { display: flex; gap: 8px; margin: 14px 0 16px; position: sticky; top: 0; background: var(--bg); padding: 8px 0; z-index: 2; }
+  nav.tabs button { flex: 1; padding: 10px 6px; border-radius: 10px; border: 1px solid var(--line); background: var(--panel);
+    color: var(--ink); font-size: .95rem; font-weight: 600; cursor: pointer; }
+  nav.tabs button.on { background: var(--blue); border-color: var(--blue); color: #fff; }
+  section.game { display: none; } section.game.on { display: block; }
+  .panel { background: var(--panel); border: 1px solid var(--line); border-radius: 14px; padding: 14px; margin: 12px 0; }
+  .row { display: flex; flex-wrap: wrap; gap: 8px; }
+  button.act { padding: 12px 14px; border-radius: 10px; border: 0; font-weight: 700; font-size: 1rem; cursor: pointer; color: #fff; background: var(--blue); }
+  button.act.alt { background: transparent; border: 1px solid var(--line); color: var(--ink); font-weight: 600; }
+  button.act.big { flex: 1 1 100%; font-size: 1.1rem; padding: 16px; }
+  button.act:active { transform: translateY(1px); }
+  .stats { display: grid; grid-template-columns: repeat(2, 1fr); gap: 8px; }
+  .stat { background: var(--bg); border-radius: 10px; padding: 10px; }
+  .stat b { display: block; font-size: 1.4rem; font-variant-numeric: tabular-nums; }
+  .stat span { color: var(--quiet); font-size: .8rem; }
+  canvas { width: 100%; display: block; border-radius: 10px; background: #15142a; }
+  .slido { border-left: 4px solid var(--green); padding: 8px 12px; background: var(--bg); border-radius: 8px; margin-top: 10px; font-variant-numeric: tabular-nums; }
+  .slido strong { color: var(--green); }
+  table { width: 100%; border-collapse: collapse; font-variant-numeric: tabular-nums; font-size: .92rem; }
+  th, td { padding: 6px 4px; text-align: center; border-bottom: 1px solid var(--line); }
+  th { color: var(--quiet); font-weight: 600; font-size: .8rem; }
+  td.pos { color: var(--orange); } td.neg { color: var(--blue); }
+  .stepper { display: inline-flex; align-items: center; gap: 4px; }
+  .stepper button { width: 34px; height: 34px; border-radius: 8px; border: 1px solid var(--line); background: var(--bg); color: var(--ink); font-size: 1.1rem; cursor: pointer; }
+  .stepper output { min-width: 18px; display: inline-block; font-weight: 700; }
+  select { width: 100%; padding: 10px; border-radius: 10px; background: var(--bg); color: var(--ink); border: 1px solid var(--line); font-size: 1rem; }
+  .verdict { font-size: 1.15rem; font-weight: 700; margin-top: 10px; }
+  .ok { color: var(--green); } .bad { color: var(--pink); }
+  label.toggle { display: flex; gap: 10px; align-items: center; margin-top: 8px; color: var(--quiet); }
+  details { margin-top: 8px; } summary { cursor: pointer; color: var(--quiet); }
+  a { color: var(--blue); }
+  footer { margin-top: 28px; color: var(--quiet); font-size: .85rem; }
+</style>
+</head>
+<body>
+<main>
+  <h1>Galaxies course: two games</h1>
+  <p class="quiet">Stellar populations, the IMF and chemical evolution · Masaryk University</p>
+
+  <nav class="tabs">
+    <button id="tab-cluster" class="on" onclick="show('cluster')">1 · Build a star cluster</button>
+    <button id="tab-chef" onclick="show('chef')">2 · Galaxy chef</button>
+  </nav>
+
+  <!-- ============================== GAME 1 ============================== -->
+  <section class="game on" id="cluster">
+    <div class="panel">
+      <h2>Build a star cluster</h2>
+      <p>Every tap gives birth to stars with masses drawn at random from the <b>Kroupa IMF</b>. Draw <b>30 stars</b>, then send your total mass and your most massive star to Slido.</p>
+    </div>
+
+    <div class="row">
+      <button class="act big" onclick="draw(30)">Give birth to 30 stars</button>
+      <button class="act alt" onclick="draw(1)">+1 star</button>
+      <button class="act alt" onclick="draw(300)">+300</button>
+      <button class="act alt" onclick="draw(10000)">+10 000</button>
+      <button class="act alt" onclick="resetCluster()">Start again</button>
+    </div>
+
+    <div class="panel">
+      <div class="stats">
+        <div class="stat"><b id="sN">0</b><span>stars born</span></div>
+        <div class="stat"><b id="sM">0</b><span>total mass [M☉]</span></div>
+        <div class="stat"><b id="sMax">–</b><span>most massive star [M☉]</span></div>
+        <div class="stat"><b id="sSN">0</b><span>future supernovae (&gt; 8 M☉)</span></div>
+      </div>
+      <div class="slido" id="slidoLine">Draw your 30 stars first.</div>
+    </div>
+
+    <div class="panel">
+      <canvas id="sky" width="700" height="420" aria-label="Your star cluster"></canvas>
+      <p class="quiet">Dot size and colour show mass: red dwarfs are small and red, massive stars large and blue.</p>
+    </div>
+
+    <div class="panel">
+      <canvas id="hist" width="700" height="360" aria-label="Histogram of stellar masses"></canvas>
+      <p class="quiet">Bars: your stars (number per bin of log m). Orange line: what the IMF predicts for that many stars. Dotted line: 8 M☉.</p>
+    </div>
+
+    <details class="panel">
+      <summary>Think about it</summary>
+      <p>1. Did your 30 stars contain a supernova progenitor? How many pairs in the room got one?</p>
+      <p>2. Press +10 000 a few times. Does the histogram now follow the line? Where does it still scatter, and why?</p>
+      <p>3. Most stars are small. Which stars carry most of the <i>mass</i>? Which make most of the <i>light</i>?</p>
+    </details>
+  </section>
+
+  <!-- ============================== GAME 2 ============================== -->
+  <section class="game" id="chef">
+    <div class="panel">
+      <h2>Galaxy chef: the [Mg/Fe] clock</h2>
+      <p>You have <b>8 units of star formation</b> to spend over <b>8 rounds</b> (1 round ≈ 250 Myr).</p>
+      <p>Each unit makes <b>3 Mg + 1 Fe at once</b> (core-collapse SN II). It also books iron from <b>Type Ia SNe</b>: <b>+1 Fe</b> one round later, <b>+1</b> two rounds later and <b>+1</b> four rounds later.</p>
+      <p>Stars born in a round inherit the pot's [Mg/Fe] at that moment. The customer gets the mass-weighted [Mg/Fe] of all your stars.</p>
+    </div>
+
+    <div class="panel">
+      <label for="order"><b>Customer's order</b></label>
+      <select id="order" onchange="renderChef()"></select>
+      <p class="quiet" id="orderText"></p>
+      <label class="toggle"><input type="checkbox" id="topheavy" onchange="renderChef()"> Top-heavy IMF kitchen (4 Mg per unit instead of 3)</label>
+    </div>
+
+    <div class="panel">
+      <table>
+        <thead><tr><th>Round</th><th>Your units</th><th>Fe from SN Ia</th><th>Mg in pot</th><th>Fe in pot</th><th>pot [Mg/Fe]</th></tr></thead>
+        <tbody id="rounds"></tbody>
+      </table>
+      <p class="quiet" id="unitsLeft"></p>
+    </div>
+
+    <div class="panel">
+      <canvas id="mgfe" width="700" height="300" aria-label="Pot [Mg/Fe] per round"></canvas>
+      <div class="stats" style="margin-top:10px">
+        <div class="stat"><b id="starsMgFe">–</b><span>your stars' [Mg/Fe]</span></div>
+        <div class="stat"><b id="r8MgFe">–</b><span>[Mg/Fe] of round-8 stars</span></div>
+      </div>
+      <div class="row" style="margin-top:12px">
+        <button class="act big" onclick="serve()">Serve the order</button>
+        <button class="act alt" onclick="clearRecipe()">Clear recipe</button>
+      </div>
+      <div class="verdict" id="verdict"></div>
+      <p class="quiet" id="hint"></p>
+    </div>
+
+    <details class="panel">
+      <summary>The rules in numbers</summary>
+      <p>[Mg/Fe] = log₁₀(Mg/Fe) relative to a 1:1 pot, which we call solar. Pure SN II gives Mg/Fe = 3, i.e. [Mg/Fe] = +0.48.</p>
+      <p>Same model as notebook 03 in the course repository.</p>
+    </details>
+  </section>
+
+  <footer>
+    Notebooks, code and animations: <a href="https://github.com/Azeret/stellar-populations-lectures">github.com/Azeret/stellar-populations-lectures</a>
+  </footer>
+</main>
+
+<script>
+/* ---------------- tabs ---------------- */
+function show(id) {
+  for (const g of ['cluster', 'chef']) {
+    document.getElementById(g).classList.toggle('on', g === id);
+    document.getElementById('tab-' + g).classList.toggle('on', g === id);
+  }
+  if (id === 'chef') renderChef(); else renderCluster();
+  history.replaceState(null, '', '#' + id);
+}
+
+/* ================= GAME 1: Kroupa IMF sampling ================= */
+// Kroupa (2001): xi ~ m^-1.3 for 0.08-0.5, m^-2.3 for 0.5-150 Msun (continuous at 0.5)
+const BREAKS = [0.08, 0.5, 150], ALPHAS = [1.3, 2.3];
+const K = [1, Math.pow(0.5, -1.3) / Math.pow(0.5, -2.3)];
+function segInt(i, lo, hi, power) {           // integral of m^power * xi over [lo,hi] in segment i
+  const p = power - ALPHAS[i] + 1;
+  return K[i] * (Math.pow(hi, p) - Math.pow(lo, p)) / p;
+}
+const W = [segInt(0, BREAKS[0], BREAKS[1], 0), segInt(1, BREAKS[1], BREAKS[2], 0)];
+const P0 = W[0] / (W[0] + W[1]);
+function sampleMass() {
+  const i = Math.random() < P0 ? 0 : 1;
+  const lo = BREAKS[i], hi = BREAKS[i + 1], p = 1 - ALPHAS[i], u = Math.random();
+  return Math.pow(Math.pow(lo, p) + u * (Math.pow(hi, p) - Math.pow(lo, p)), 1 / p);
+}
+let stars = [];   // {m, x, y}
+function draw(n) {
+  for (let k = 0; k < n; k++) {
+    // Plummer-like projected position, kept inside the frame
+    let r = 1 / Math.sqrt(Math.pow(Math.random(), -2 / 3) - 1);
+    if (r > 4.6) r = Math.random() * 4.6;
+    const phi = Math.random() * 2 * Math.PI;
+    stars.push({ m: sampleMass(), x: r * Math.cos(phi), y: r * Math.sin(phi) });
+  }
+  renderCluster();
+}
+function resetCluster() { stars = []; renderCluster(); }
+
+function massColor(m) {          // red (0.08) -> yellow -> white -> blue (>20)
+  const t = Math.min(1, Math.max(0, (Math.log10(m) + 1.1) / 2.6));
+  const stops = [[239, 93, 64], [245, 166, 35], [250, 240, 210], [120, 180, 255], [70, 110, 255]];
+  const s = t * (stops.length - 1), i = Math.min(stops.length - 2, Math.floor(s)), f = s - i;
+  const c = stops[i].map((v, j) => Math.round(v + f * (stops[i + 1][j] - v)));
+  return `rgb(${c[0]},${c[1]},${c[2]})`;
+}
+function fmt(x, d = 1) { return x.toLocaleString('en-US', { maximumFractionDigits: d, minimumFractionDigits: d }); }
+
+function renderCluster() {
+  const N = stars.length;
+  let M = 0, mmax = 0, nsn = 0;
+  for (const s of stars) { M += s.m; if (s.m > mmax) mmax = s.m; if (s.m > 8) nsn++; }
+  document.getElementById('sN').textContent = N.toLocaleString('en-US');
+  document.getElementById('sM').textContent = fmt(M, M < 100 ? 1 : 0);
+  document.getElementById('sMax').textContent = N ? fmt(mmax, 2) : '–';
+  document.getElementById('sSN').textContent = nsn.toLocaleString('en-US');
+  const sl = document.getElementById('slidoLine');
+  sl.innerHTML = N ? `Send to Slido: <strong>${fmt(M, 1)} Msun, ${fmt(mmax, 1)} Msun</strong>` + (N !== 30 ? ` <span class="quiet">(you have ${N} stars; the class game uses 30)</span>` : '')
+                   : 'Draw your 30 stars first.';
+  drawSky(); drawHist();
+}
+
+function fitCanvas(c) {            // crisp on high-DPI phones, keeps the canvas' aspect ratio
+  if (!c.dataset.ar) c.dataset.ar = c.height / c.width;
+  const dpr = window.devicePixelRatio || 1, w = c.clientWidth || 700, h = w * +c.dataset.ar;
+  c.width = Math.round(w * dpr); c.height = Math.round(h * dpr);
+  const ctx = c.getContext('2d'); ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
+  return { ctx, w, h };
+}
+
+function drawSky() {
+  const { ctx, w, h } = fitCanvas(document.getElementById('sky'));
+  ctx.clearRect(0, 0, w, h);
+  const N = stars.length, scale = Math.min(w, h) / 10.5;
+  const shrink = Math.min(1, Math.pow(30 / Math.max(N, 1), 0.3));
+  const order = stars.slice(-20000).sort((a, b) => a.m - b.m);   // draw massive stars on top
+  ctx.globalAlpha = N > 3000 ? 0.55 : 0.95;
+  for (const s of order) {
+    const rad = Math.max(0.8, (1.6 + 3.2 * Math.pow(s.m, 0.45)) * shrink);
+    ctx.beginPath(); ctx.fillStyle = massColor(s.m);
+    ctx.arc(w / 2 + s.x * scale, h / 2 + s.y * scale, rad, 0, 2 * Math.PI); ctx.fill();
+  }
+  ctx.globalAlpha = 1;
+  if (!N) { ctx.fillStyle = '#9a9ab5'; ctx.font = '16px system-ui'; ctx.textAlign = 'center'; ctx.fillText('An empty gas cloud. Tap a button!', w / 2, h / 2); }
+}
+
+function drawHist() {
+  const { ctx, w, h } = fitCanvas(document.getElementById('hist'));
+  ctx.clearRect(0, 0, w, h);
+  const L = 46, R = 12, T = 12, B = 36, pw = w - L - R, ph = h - T - B;
+  const lx0 = Math.log10(0.07), lx1 = Math.log10(200);
+  const X = m => L + (Math.log10(m) - lx0) / (lx1 - lx0) * pw;
+  const N = stars.length;
+  const nb = 20, edges = Array.from({ length: nb + 1 }, (_, i) => Math.pow(10, Math.log10(0.08) + i * (Math.log10(150) - Math.log10(0.08)) / nb));
+  const counts = new Array(nb).fill(0);
+  for (const s of stars) { let i = Math.floor((Math.log10(s.m) - Math.log10(0.08)) / (Math.log10(150) - Math.log10(0.08)) * nb); counts[Math.min(nb - 1, Math.max(0, i))]++; }
+  const ymax = Math.max(10, N * 0.25), ly1 = Math.log10(ymax * 2.5), ly0 = -0.3;
+  const Y = c => T + ph - (Math.log10(Math.max(c, 0.5)) - ly0) / (ly1 - ly0) * ph;
+  // axes
+  ctx.strokeStyle = '#3a3956'; ctx.lineWidth = 1; ctx.fillStyle = '#9a9ab5'; ctx.font = '12px system-ui'; ctx.textAlign = 'center';
+  for (const m of [0.1, 1, 10, 100]) { ctx.beginPath(); ctx.moveTo(X(m), T); ctx.lineTo(X(m), T + ph); ctx.stroke(); ctx.fillText(m >= 1 ? m : '0.1', X(m), h - 18); }
+  ctx.fillText('stellar mass [M☉]', L + pw / 2, h - 3);
+  ctx.textAlign = 'right';
+  for (let e = 0; e <= Math.floor(ly1); e++) { const v = Math.pow(10, e); ctx.beginPath(); ctx.moveTo(L, Y(v)); ctx.lineTo(L + pw, Y(v)); ctx.stroke(); ctx.fillText(v >= 1000 ? (v / 1000) + 'k' : v, L - 6, Y(v) + 4); }
+  // bars
+  ctx.fillStyle = '#1e8fd5';
+  for (let i = 0; i < nb; i++) if (counts[i] > 0) {
+    const x0 = X(edges[i]) + 1, x1 = X(edges[i + 1]) - 1;
+    ctx.fillRect(x0, Y(counts[i]), x1 - x0, T + ph - Y(counts[i]));
+  }
+  // expected curve: N * fraction in each bin
+  if (N) {
+    const tot = W[0] + W[1];
+    const frac = (lo, hi) => { let f = 0; for (let i = 0; i < 2; i++) { const a = Math.max(lo, BREAKS[i]), b = Math.min(hi, BREAKS[i + 1]); if (b > a) f += segInt(i, a, b, 0); } return f / tot; };
+    ctx.strokeStyle = '#f5a623'; ctx.lineWidth = 2.5; ctx.beginPath();
+    for (let i = 0; i < nb; i++) { const c = N * frac(edges[i], edges[i + 1]); const xm = (X(edges[i]) + X(edges[i + 1])) / 2; if (c < 0.5) break; i ? ctx.lineTo(xm, Y(c)) : ctx.moveTo(xm, Y(c)); }
+    ctx.stroke();
+  }
+  ctx.setLineDash([3, 4]); ctx.strokeStyle = '#9a9ab5'; ctx.lineWidth = 1.5; ctx.beginPath(); ctx.moveTo(X(8), T); ctx.lineTo(X(8), T + ph); ctx.stroke(); ctx.setLineDash([]);
+}
+
+/* ================= GAME 2: Galaxy chef ================= */
+const ROUNDS = 8, DELAYS = [1, 2, 4];
+let recipe = [0, 0, 0, 0, 0, 0, 0, 0];
+const ORDERS = [
+  { key: 'A', name: 'A. Giant elliptical', text: 'Use all 8 units. Your stars must have [Mg/Fe] ≥ +0.42.',
+    ok: r => r.units === 8 && r.stars >= 0.42,
+    hint: 'Ellipticals formed fast. What happens to the pot once SN Ia start delivering iron?' },
+  { key: 'B', name: 'B. Milky-Way disc', text: 'Use all 8 units, form stars in at least 6 rounds, and get the stars to [Mg/Fe] ≤ +0.17. (1 unit every round gives +0.18: beat it!)',
+    ok: r => r.units === 8 && r.active >= 6 && r.stars <= 0.17,
+    hint: 'Early stars seed SN Ia iron for later rounds. Try fewer stars early and more late.' },
+  { key: 'C', name: 'C. Iron-rich today', text: 'Use all 8 units, form some stars in round 8, and those round-8 stars must have [Mg/Fe] ≤ 0.',
+    ok: r => r.units === 8 && recipe[7] > 0 && r.r8 <= 0,
+    hint: 'Round-8 stars only see iron from SN Ia booked 1, 2 and 4 rounds earlier. Plant those earlier.' },
+  { key: 'D', name: 'D. Super-alpha', text: 'Use all 8 units. Your stars must have [Mg/Fe] ≥ +0.55.',
+    ok: r => r.units === 8 && r.stars >= 0.55,
+    hint: 'Even pure SN II gives Mg/Fe = 3, i.e. +0.48. What sets that 3? Try the top-heavy IMF kitchen.' },
+];
+
+function kitchen(rec, mgPerUnit) {
+  let mg = 0, fe = 0; const due = new Array(ROUNDS + 6).fill(0);
+  const rows = []; let wsum = 0, rsum = 0;
+  for (let r = 0; r < ROUNDS; r++) {
+    const ia = due[r]; fe += ia;
+    const u = rec[r]; mg += mgPerUnit * u; fe += u;
+    for (const d of DELAYS) due[r + d] += u;
+    const ratio = fe > 0 ? mg / fe : NaN;
+    if (u > 0) { wsum += u; rsum += u * ratio; }
+    rows.push({ r: r + 1, u, ia, mg, fe, x: fe > 0 ? Math.log10(ratio) : NaN });
+  }
+  return { rows, units: rec.reduce((a, b) => a + b, 0), active: rec.filter(u => u > 0).length,
+           stars: wsum ? Math.log10(rsum / wsum) : NaN, r8: rows[7].x };
+}
+
+function sgn(x) { return isNaN(x) ? '–' : (x >= 0 ? '+' : '−') + Math.abs(x).toFixed(2); }
+
+function step(r, d) {
+  const total = recipe.reduce((a, b) => a + b, 0);
+  if (d > 0 && total >= 8) return;
+  recipe[r] = Math.max(0, recipe[r] + d);
+  document.getElementById('verdict').textContent = ''; document.getElementById('hint').textContent = '';
+  renderChef();
+}
+function clearRecipe() { recipe = recipe.map(() => 0); document.getElementById('verdict').textContent = ''; document.getElementById('hint').textContent = ''; renderChef(); }
+
+function currentOrder() { return ORDERS.find(o => o.key === document.getElementById('order').value) || ORDERS[0]; }
+
+function renderChef() {
+  const sel = document.getElementById('order');
+  if (!sel.options.length) for (const o of ORDERS) sel.add(new Option(o.name, o.key));
+  document.getElementById('orderText').textContent = currentOrder().text;
+  const res = kitchen(recipe, document.getElementById('topheavy').checked ? 4 : 3);
+  const tb = document.getElementById('rounds'); tb.innerHTML = '';
+  for (const row of res.rows) {
+    const tr = document.createElement('tr');
+    const cls = isNaN(row.x) ? '' : (row.x > 0.005 ? 'pos' : 'neg');
+    tr.innerHTML = `<td>${row.r}</td>
+      <td><span class="stepper"><button aria-label="fewer units in round ${row.r}" onclick="step(${row.r - 1},-1)">−</button><output>${row.u}</output><button aria-label="more units in round ${row.r}" onclick="step(${row.r - 1},1)">+</button></span></td>
+      <td>${row.ia || ''}</td><td>${row.mg}</td><td>${row.fe}</td><td class="${cls}">${row.fe ? sgn(row.x) : 'empty'}</td>`;
+    tb.appendChild(tr);
+  }
+  const left = 8 - res.units;
+  document.getElementById('unitsLeft').textContent = left ? `${left} unit${left > 1 ? 's' : ''} of star formation left to place.` : 'All 8 units placed.';
+  document.getElementById('starsMgFe').textContent = sgn(res.stars);
+  document.getElementById('r8MgFe').textContent = recipe[7] > 0 ? sgn(res.r8) : '–';
+  drawMgFe(res);
+  return res;
+}
+
+function serve() {
+  const res = renderChef(), o = currentOrder(), v = document.getElementById('verdict'), h = document.getElementById('hint');
+  if (res.units !== 8) { v.className = 'verdict bad'; v.textContent = `Place all 8 units first (${8 - res.units} left).`; h.textContent = ''; return; }
+  if (o.ok(res)) { v.className = 'verdict ok'; v.textContent = 'Order filled ✓'; h.textContent = o.key === 'D' ? 'You changed the kitchen, not the recipe: a top-heavy IMF mimics a fast clock.' : ''; }
+  else { v.className = 'verdict bad'; v.textContent = 'The customer sends it back ✗'; h.textContent = 'Hint: ' + o.hint; }
+}
+
+function drawMgFe(res) {
+  const { ctx, w, h } = fitCanvas(document.getElementById('mgfe'));
+  ctx.clearRect(0, 0, w, h);
+  const L = 46, R = 12, T = 14, B = 34, pw = w - L - R, ph = h - T - B, y0 = -0.3, y1 = 0.65;
+  const X = r => L + (r - 0.5) / ROUNDS * pw, Y = v => T + (y1 - v) / (y1 - y0) * ph;
+  ctx.font = '12px system-ui'; ctx.fillStyle = '#9a9ab5'; ctx.strokeStyle = '#3a3956'; ctx.lineWidth = 1;
+  ctx.textAlign = 'right';
+  for (const v of [-0.2, 0, 0.2, 0.4, 0.6]) { ctx.beginPath(); ctx.moveTo(L, Y(v)); ctx.lineTo(L + pw, Y(v)); ctx.stroke(); ctx.fillText(sgn(v).replace('.00', '.0'), L - 6, Y(v) + 4); }
+  ctx.textAlign = 'center';
+  for (let r = 1; r <= ROUNDS; r++) ctx.fillText(r, X(r), h - 16);
+  ctx.fillText('round (≈ 250 Myr each)', L + pw / 2, h - 2);
+  ctx.strokeStyle = '#ef5d8f'; ctx.setLineDash([4, 4]); ctx.beginPath(); ctx.moveTo(L, Y(Math.log10(3))); ctx.lineTo(L + pw, Y(Math.log10(3))); ctx.stroke(); ctx.setLineDash([]);
+  ctx.fillStyle = '#ef5d8f'; ctx.textAlign = 'left'; ctx.fillText('pure SN II', L + 4, Y(Math.log10(3)) - 5);
+  // pot line
+  ctx.strokeStyle = '#1e8fd5'; ctx.lineWidth = 2.5; ctx.beginPath(); let started = false;
+  for (const row of res.rows) { if (isNaN(row.x)) continue; const x = X(row.r), y = Y(Math.max(y0, Math.min(y1, row.x))); started ? ctx.lineTo(x, y) : ctx.moveTo(x, y); started = true; }
+  ctx.stroke();
+  // stars born (circles sized by units)
+  for (const row of res.rows) if (row.u > 0) {
+    ctx.beginPath(); ctx.fillStyle = '#f5a623';
+    ctx.arc(X(row.r), Y(Math.max(y0, Math.min(y1, row.x))), 4 + 2.2 * row.u, 0, 2 * Math.PI); ctx.fill();
+  }
+}
+
+/* ---------------- start ---------------- */
+window.addEventListener('resize', () => { renderCluster(); renderChef(); });
+renderChef();
+show(location.hash === '#chef' ? 'chef' : 'cluster');
+</script>
+</body>
+</html>
