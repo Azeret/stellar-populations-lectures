@@ -9,6 +9,13 @@ Hands-on material for two lectures in the *Galaxies* course at Masaryk Universit
 1. **Build a star cluster** — give birth to stars drawn from the Kroupa IMF and see where the mass sits (Lecture 1).
 2. **Galaxy chef** — spend 8 units of star formation to fill customers' [Mg/Fe] orders (Lecture 2).
 
+## 💬 Class Slido
+
+| Lecture | Join (students) | Code |
+|---|---|---|
+| 1 · Stellar populations & the IMF | https://app.sli.do/event/jRyr3ddxdb6duWCkxqP741 | slido.com **#2458697** |
+| 2 · Chemical evolution & the [Mg/Fe] clock | https://app.sli.do/event/s76TJyV1cGRxvwUWRgkj4F | slido.com **#1642685** |
+
 ## Notebooks (click the badge to run in your browser with Google Colab)
 
 | Notebook | Lecture | What you do | Run |
