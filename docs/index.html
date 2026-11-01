@@ -64,7 +64,7 @@
   </nav>
 
   <!-- ============================== GAME 1 ============================== -->
-  <section class="game on" id="cluster">
+  <section class="game on" id="game-cluster">
     <div class="panel">
       <h2>Build a star cluster</h2>
       <p>Every tap gives birth to stars with masses drawn at random from the <b>Kroupa IMF</b>. Draw <b>30 stars</b>, then send your total mass and your most massive star to Slido.</p>
@@ -107,7 +107,7 @@
   </section>
 
   <!-- ============================== GAME 2 ============================== -->
-  <section class="game" id="chef">
+  <section class="game" id="game-chef">
     <div class="panel">
       <h2>Galaxy chef: the [Mg/Fe] clock</h2>
       <p>You have <b>8 units of star formation</b> to spend over <b>8 rounds</b> (1 round ≈ 250 Myr).</p>
@@ -160,7 +160,7 @@
 /* ---------------- tabs ---------------- */
 function show(id) {
   for (const g of ['cluster', 'chef']) {
-    document.getElementById(g).classList.toggle('on', g === id);
+    document.getElementById('game-' + g).classList.toggle('on', g === id);
     document.getElementById('tab-' + g).classList.toggle('on', g === id);
   }
   if (id === 'chef') renderChef(); else renderCluster();
@@ -379,6 +379,7 @@ function drawMgFe(res) {
 
 /* ---------------- start ---------------- */
 window.addEventListener('resize', () => { renderCluster(); renderChef(); });
+window.addEventListener('hashchange', () => show(location.hash === '#chef' ? 'chef' : 'cluster'));
 renderChef();
 show(location.hash === '#chef' ? 'chef' : 'cluster');
 </script>
