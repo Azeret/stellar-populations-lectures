@@ -22,7 +22,7 @@
   nav.tabs button { flex: 1; padding: 10px 6px; border-radius: 10px; border: 1px solid var(--line); background: var(--panel);
     color: var(--ink); font-size: .95rem; font-weight: 600; cursor: pointer; }
   nav.tabs button.on { background: var(--blue); border-color: var(--blue); color: #fff; }
-  section.game { display: none; } section.game.on { display: block; }
+  section.game { display: none; scroll-margin-top: 80px; } section.game.on { display: block; }
   .panel { background: var(--panel); border: 1px solid var(--line); border-radius: 14px; padding: 14px; margin: 12px 0; }
   .row { display: flex; flex-wrap: wrap; gap: 8px; }
   button.act { padding: 12px 14px; border-radius: 10px; border: 0; font-weight: 700; font-size: 1rem; cursor: pointer; color: #fff; background: var(--blue); }
@@ -50,6 +50,7 @@
   details { margin-top: 8px; } summary { cursor: pointer; color: var(--quiet); }
   a { color: var(--blue); }
   footer { margin-top: 28px; color: var(--quiet); font-size: .85rem; }
+  .row button.act.alt { flex: 1 1 auto; }
 </style>
 </head>
 <body>
@@ -164,6 +165,7 @@ function show(id) {
   }
   if (id === 'chef') renderChef(); else renderCluster();
   history.replaceState(null, '', '#' + id);
+  window.scrollTo(0, 0);
 }
 
 /* ================= GAME 1: Kroupa IMF sampling ================= */
