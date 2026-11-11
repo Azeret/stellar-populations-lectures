@@ -40,11 +40,13 @@ def save(fig, name):
 def massive_star():
     fig, ax = sketch()
     cx, cy = 4.6, 4.5
-    shells = [(3.9, "H", BLUE), (3.1, "He", GREEN), (2.4, "C", ORANGE), (1.75, "O, Ne", PINK), (1.15, "Si, S", VIOLET), (0.55, "Fe", INK)]
+    shells = [(3.9, "H hydrogen", BLUE), (3.1, "He helium", GREEN), (2.4, "C carbon", ORANGE), (1.75, "O, Ne  oxygen, neon", PINK),
+              (1.15, "Si, S  silicon, sulphur", VIOLET), (0.55, "Fe\niron", INK)]
     for r, lab, c in shells:
         ax.add_patch(Circle((cx, cy), r, fill=False, ec=c, lw=3))
     for (r, lab, c), (r2, _, _) in zip(shells, shells[1:] + [(0, "", "")]):
-        ax.text(cx, cy + (r + r2) / 2 - 0.15, lab, ha="center", va="center", color=c, fontsize=22)
+        fs = 21 if r > 2 else (16 if r > 1.5 else 11.5)
+        ax.text(cx, cy + (r + r2) / 2 - (0.1 if r > 0.6 else 0.0), lab, ha="center", va="center", color=c, fontsize=fs)
     ax.text(cx, 0.15, "a star above 8 Msun near its end (not to scale)", ha="center", fontsize=19, color=GREY)
     x0 = 9.3
     ax.text(x0, 8.3, "1. burns H → He → C → O, Ne → Si → Fe", fontsize=22, color=INK)
@@ -53,9 +55,10 @@ def massive_star():
     ax.text(x0, 6.2, "   the core collapses → neutron star / BH", fontsize=19, color=GREY)
     ax.text(x0, 5.3, "3. the shock heats the shells:", fontsize=22, color=INK)
     ax.text(x0, 4.7, "   explosive burning makes more Si, S, Ca", fontsize=19, color=GREY)
-    ax.text(x0, 4.2, "   and ~0.07 Msun of radioactive Ni-56 → Fe", fontsize=19, color=GREY)
+    ax.text(x0, 4.2, "   + 0.07 Msun of radioactive nickel → iron", fontsize=19, color=GREY)
     ax.text(x0, 3.3, "4. everything outside is thrown out:", fontsize=22, color=INK)
-    ax.text(x0, 2.7, "   O, Ne, Mg, Si, S, Ca ... a bit of Fe", fontsize=19, color=GREY)
+    ax.text(x0, 2.75, "   O oxygen, Ne neon, Mg magnesium, Si silicon,", fontsize=17, color=GREY)
+    ax.text(x0, 2.3, "   S sulphur, Ca calcium ... a bit of Fe iron", fontsize=17, color=GREY)
     ax.text(x0, 1.6, "life: 3 Myr (100 Msun) to 40 Myr (8 Msun)", fontsize=21, color=BLUE)
     ax.text(x0, 1.0, "→ the PROMPT source of α-elements", fontsize=21, color=BLUE)
     save(fig, "f1_massive_star")
@@ -80,22 +83,23 @@ def agb_star():
     ax.text(cx, 0.15, "a 1–8 Msun star at the end of its life (AGB)", ha="center", fontsize=19, color=GREY)
     x0 = 9.4
     ax.text(x0, 8.3, "1. H and He burn in thin shells", fontsize=22)
-    ax.text(x0, 7.7, "   around a C/O core (future white dwarf)", fontsize=19, color=GREY)
+    ax.text(x0, 7.7, "   around a carbon-oxygen core (future white dwarf)", fontsize=18, color=GREY)
     ax.text(x0, 6.8, "2. He-shell flashes release neutrons", fontsize=22)
-    ax.text(x0, 6.2, "   (C-13 + He-4 → O-16 + n): few neutrons, slowly", fontsize=19, color=GREY)
-    ax.text(x0, 5.3, "3. iron seeds catch them one by one:", fontsize=22)
-    ax.text(x0, 4.7, "   s-process → Sr, Y, Zr, Ba, La, Pb", fontsize=19, color=GREY)
-    ax.text(x0, 3.8, "4. convection lifts C, N, s-elements up;", fontsize=22)
-    ax.text(x0, 3.2, "   the wind blows them into space", fontsize=19, color=GREY)
+    ax.text(x0, 6.2, "   carbon-13 + helium-4 → oxygen-16 + neutron", fontsize=18, color=GREY)
+    ax.text(x0, 5.3, "3. iron seeds catch them one by one (s-process):", fontsize=21)
+    ax.text(x0, 4.75, "   Sr strontium, Y yttrium, Zr zirconium,", fontsize=17, color=GREY)
+    ax.text(x0, 4.3, "   Ba barium, La lanthanum, Pb lead", fontsize=17, color=GREY)
+    ax.text(x0, 3.4, "4. convection lifts C carbon, N nitrogen", fontsize=22)
+    ax.text(x0, 2.8, "   and s-elements up; the wind blows them out", fontsize=18, color=GREY)
     ax.text(x0, 1.6, "life: ~100 Myr (5 Msun) to 10 Gyr (1 Msun)", fontsize=21, color=GREEN)
-    ax.text(x0, 1.0, "→ a DELAYED source of C, N, Ba", fontsize=21, color=GREEN)
+    ax.text(x0, 1.0, "→ a DELAYED source of carbon, nitrogen, barium", fontsize=21, color=GREEN)
     save(fig, "f2_agb_star")
 
 
 # F3 ------------------------------------------------------------ SN Ia
 def sn_ia():
     fig, ax = sketch()
-    ax.add_patch(Circle((2.0, 6.2), 0.45, fill=False, ec=INK, lw=3)); ax.text(2.0, 5.3, "white dwarf\n(C/O, ~1.4 Msun)", ha="center", fontsize=16, va="top")
+    ax.add_patch(Circle((2.0, 6.2), 0.45, fill=False, ec=INK, lw=3)); ax.text(2.0, 5.3, "white dwarf\n(carbon + oxygen,\n~1.4 Msun)", ha="center", fontsize=16, va="top")
     ax.add_patch(Circle((5.3, 6.2), 1.4, fill=False, ec=ORANGE, lw=3)); ax.text(5.3, 4.5, "companion star\ngives it gas", ha="center", fontsize=16, va="top")
     arrow(ax, (4.0, 6.5), (2.55, 6.3), ORANGE, rad=0.25)
     ax.text(3.5, 8.3, "or: two white dwarfs merge", ha="center", fontsize=17, color=GREY)
@@ -109,9 +113,11 @@ def sn_ia():
     ax.text(x0, 6.8, "2. carbon ignites in degenerate matter:", fontsize=22)
     ax.text(x0, 6.2, "   no expansion to cool it → runaway", fontsize=19, color=GREY)
     ax.text(x0, 5.3, "3. the whole star burns in ~1 s:", fontsize=22)
-    ax.text(x0, 4.7, "   ~0.6–0.7 Msun of Ni-56 → Co-56 → Fe-56", fontsize=19, color=GREY)
-    ax.text(x0, 4.2, "   + Si, S, Ca, Mn;  almost no O or Mg", fontsize=19, color=GREY)
-    ax.text(x0, 3.3, "4. nothing left behind", fontsize=22)
+    ax.text(x0, 4.75, "   ~0.6–0.7 Msun of Ni-56 → Co-56 → Fe-56", fontsize=19, color=GREY)
+    ax.text(x0, 4.3, "   (nickel → cobalt → iron, radioactive decay)", fontsize=17, color=GREY)
+    ax.text(x0, 3.85, "   + Si silicon, S sulphur, Ca calcium, Mn manganese", fontsize=17, color=GREY)
+    ax.text(x0, 3.4, "   almost no O oxygen or Mg magnesium", fontsize=17, color=GREY)
+    ax.text(x0, 2.6, "4. nothing left behind", fontsize=22)
     ax.text(x0, 1.6, "delay: the WD must first form (≥ 40 Myr)", fontsize=21, color=ORANGE)
     ax.text(x0, 1.0, "and grow → ~1/t from 40 Myr to 10+ Gyr", fontsize=21, color=ORANGE)
     save(fig, "f3_sn_ia")
@@ -139,12 +145,13 @@ def neutron_captures():
     ax.text(x0, 8.3, "Beyond iron, fusion costs energy:", fontsize=22)
     ax.text(x0, 7.7, "heavy nuclei are built by adding neutrons", fontsize=19, color=GREY)
     ax.text(x0, 6.6, "s (slow): ~1 capture per 1–1000 yr", fontsize=22, color=GREEN)
-    ax.text(x0, 6.0, "   AGB stars → Sr, Y, Ba, La, Pb", fontsize=19, color=GREY)
-    ax.text(x0, 5.4, "   (Ba stars: s-elements from a companion)", fontsize=17, color=GREY)
-    ax.text(x0, 4.4, "r (rapid): > 10^20 neutrons/cm^3 for ~1 s", fontsize=22, color=PINK)
-    ax.text(x0, 3.8, "   neutron-star mergers → Eu, Pt, Au, U", fontsize=19, color=GREY)
-    ax.text(x0, 3.2, "   seen: kilonova of GW170817 (2017)", fontsize=17, color=GREY)
-    ax.text(x0, 2.0, "Ba is mostly s, Eu almost only r:", fontsize=21)
+    ax.text(x0, 6.05, "   AGB stars → Sr strontium, Y yttrium,", fontsize=17, color=GREY)
+    ax.text(x0, 5.6, "   Ba barium, La lanthanum, Pb lead", fontsize=17, color=GREY)
+    ax.text(x0, 4.6, "r (rapid): > 10^20 neutrons/cm^3 for ~1 s", fontsize=22, color=PINK)
+    ax.text(x0, 4.05, "   neutron-star mergers → Eu europium,", fontsize=17, color=GREY)
+    ax.text(x0, 3.6, "   Pt platinum, Au gold, U uranium", fontsize=17, color=GREY)
+    ax.text(x0, 3.15, "   seen: kilonova of GW170817 (2017)", fontsize=17, color=GREY)
+    ax.text(x0, 2.0, "Ba barium is mostly s, Eu europium only r:", fontsize=20)
     ax.text(x0, 1.4, "[Ba/Eu] tells which process dominated", fontsize=19, color=GREY)
     save(fig, "f4_neutron_captures")
 
@@ -153,15 +160,15 @@ def neutron_captures():
 def overview():
     plt.rcdefaults()
     mpl.rcParams.update({"figure.facecolor": BG, "savefig.facecolor": BG, "text.color": INK, "font.size": 17, "font.family": "DejaVu Sans"})
-    rows = [("bb", "the young Universe", "first 3 minutes:\nprotons + neutrons fuse", "H, He, a little Li", "13.8 Gyr ago, once"),
-            ("cr", "fast particles\nfrom supernovae", "fast protons break\nC, N, O in space", "Li, Be, B", "all the time"),
-            ("ccsn", "massive star\n> 8 M☉", "shell burning + core\ncollapse explosion", "O, Ne, Mg, Si, S, Ca,\n~40% of Fe, half of C", "3–40 Myr\n(prompt)"),
-            ("agb", "low/intermediate-\nmass star 1–8 M☉", "H/He shells, dredge-up,\ns-process", "C, N, Sr, Ba, Pb", "0.1–10 Gyr"),
-            ("ia", "white dwarf in\na binary", "thermonuclear runaway\nof C/O", "~60% of Fe, Mn, Ni", "40 Myr–10+ Gyr\n(delayed)"),
-            ("r", "two neutron stars\n(merging)", "r-process (rapid\nneutron capture)", "Eu, Pt, Au, U", "10 Myr–Gyr")]
+    rows = [("bb", "the young Universe", "first 3 minutes:\nprotons + neutrons fuse", "H hydrogen, He helium,\na little Li lithium", "13.8 Gyr ago, once"),
+            ("cr", "fast particles\nfrom supernovae", "fast protons break\ncarbon, nitrogen, oxygen", "Li lithium, Be beryllium,\nB boron", "all the time"),
+            ("ccsn", "massive star\n> 8 M☉", "shell burning + core\ncollapse explosion", "O oxygen, Ne neon, Mg magnesium,\nSi silicon, S sulphur, Ca calcium;\n~40% of Fe iron, half of C carbon", "3–40 Myr\n(prompt)"),
+            ("agb", "low/intermediate-\nmass star 1–8 M☉", "H/He shells, dredge-up,\ns-process", "C carbon, N nitrogen;\nSr strontium, Ba barium, Pb lead", "0.1–10 Gyr"),
+            ("ia", "white dwarf in\na binary", "thermonuclear runaway\nof carbon + oxygen", "~60% of Fe iron,\nMn manganese, Ni nickel", "40 Myr–10+ Gyr\n(delayed)"),
+            ("r", "two neutron stars\n(merging)", "r-process (rapid\nneutron capture)", "Eu europium, Pt platinum,\nAu gold, U uranium", "10 Myr–Gyr")]
     fig = plt.figure(figsize=(18, 8.4)); ax = fig.add_axes([0, 0, 1, 1]); ax.axis("off"); ax.set_xlim(0, 18); ax.set_ylim(0, 8.4)
-    cols = [0.9, 5.0, 8.5, 12.0, 15.3]
-    for x, h in zip(cols, ["factory", "who explodes / dies", "what happens", "main products", "delay"]):
+    cols = [0.9, 4.0, 6.9, 10.15, 15.4]
+    for x, h in zip(cols, ["factory", "progenitor", "what happens", "main products (symbol + name)", "delay"]):
         ax.text(x, 7.9, h, fontsize=19, color=GREY, fontweight="bold")
     for i, (k, *cells) in enumerate(rows):
         y = 6.75 - i * 1.25
@@ -169,7 +176,7 @@ def overview():
         lab = {"ccsn": "SN II\n(core collapse)", "ia": "SN Ia\n(white dwarf)", "agb": "AGB stars", "r": "NS mergers"}.get(k, SOURCES[k][0])
         ax.text(cols[0], y, lab, va="center", fontsize=18, fontweight="bold", color=SOURCES[k][1] if k != "cr" else INK)
         for x, c in zip(cols[1:], cells):
-            ax.text(x, y, c, va="center", fontsize=17)
+            ax.text(x, y, c, va="center", fontsize=16)
         ax.plot([0.3, 17.7], [y - 0.62, y - 0.62], color="#3a3956", lw=1)
     save(fig, "f0_factories_table")
 
