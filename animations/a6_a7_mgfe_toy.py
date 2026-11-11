@@ -2,7 +2,7 @@
 
 A6: [Mg/Fe] vs [Fe/H] tracks drawn as time runs, for an elliptical (fast,
     quenched), a Milky-Way-like disc and a slow dwarf, with the SN II / SN Ia
-    rates of the Milky-Way model underneath.
+    rates of all three models underneath (colour = model, solid SN II, dashed SN Ia).
 A7: the Milky-Way model while the high-mass IMF slope slides from 1.9 to 2.7.
 Run: python a6_a7_mgfe_toy.py  ->  out/a6_mgfe_clock.mp4, out/a7_mgfe_imf.mp4
 """
@@ -44,8 +44,6 @@ def make_a6(preview=False):
              fontsize=32, weight="bold", color=FG)
     clock = fig.text(0.07, 0.87, "", fontsize=26, color=FG)
     times = np.concatenate([np.geomspace(0.01, 13.0, 330), np.full(80, 13.0)])
-    mw = runs[1]
-    rmax = max(mw["rate_ii"].max(), 1e-12)
 
     def draw(tnow):
         i = min(np.searchsorted(t, tnow), len(t) - 1)
@@ -58,7 +56,7 @@ def make_a6(preview=False):
             if ok.any():
                 ax.plot(fe[ok][-1], mg[ok][-1], "o", color=col, ms=14)
                 if not act[-1]:
-                    ax.text(fe[ok][-1] - 0.05, mg[ok][-1] - 0.07, "star formation stopped", color=col, fontsize=15, ha="right")
+                    ax.text(fe[ok][-1] - 0.08, mg[ok][-1] - 0.05, "star formation\nstopped", color=col, fontsize=15, ha="left", va="top")
         ax.legend(loc="lower left")
         # SFR panel
         axs.cla()
@@ -66,13 +64,17 @@ def make_a6(preview=False):
             axs.plot(t[: i + 1], r["sfr"][: i + 1] / r["sfr"].max(), color=col)
         axs.set_xscale("log"); axs.set_xlim(0.01, 13); axs.set_ylim(0, 1.1)
         axs.set_ylabel("star formation\n(scaled)"); axs.set_xticklabels([])
-        # SN rates panel (MW model)
+        # SN rates panel: every model, SN II solid, SN Ia dashed, each scaled to its own SN II peak
         axr.cla()
-        axr.plot(t[: i + 1], mw["rate_ii"][: i + 1] / rmax, color=PINK, label="SN II (Mg + some Fe)")
-        axr.plot(t[: i + 1], mw["rate_ia"][: i + 1] / rmax * 5, color=FG, label="SN Ia ×5 (mostly Fe)")
-        axr.set_xscale("log"); axr.set_xlim(0.01, 13); axr.set_ylim(0, 1.15)
-        axr.set_xlabel("time [Gyr]"); axr.set_ylabel("SN rate, MW\n(scaled)")
-        axr.legend(loc="upper left", fontsize=14)
+        for (lab, col, _), r in zip(GALAXIES, runs):
+            peak = max(r["rate_ii"].max(), 1e-30)
+            axr.plot(t[: i + 1], r["rate_ii"][: i + 1] / peak, color=col, lw=2.5)
+            axr.plot(t[: i + 1], r["rate_ia"][: i + 1] / peak, color=col, lw=2.5, ls="--")
+        axr.plot([], [], color=FG, lw=2.5, label="SN II (Mg + some Fe)")
+        axr.plot([], [], color=FG, lw=2.5, ls="--", label="SN Ia (mostly Fe)")
+        axr.set_xscale("log"); axr.set_yscale("log"); axr.set_xlim(0.01, 13); axr.set_ylim(1e-3, 2)
+        axr.set_xlabel("time [Gyr]"); axr.set_ylabel("SN rate\n(÷ own SN II peak)")
+        axr.legend(loc="lower left", bbox_to_anchor=(0, 1.0), ncol=2, fontsize=14, frameon=False)
         clock.set_text(f"t = {tnow*1000:,.0f} Myr" if tnow < 1 else f"t = {tnow:.1f} Gyr")
 
     if preview:
