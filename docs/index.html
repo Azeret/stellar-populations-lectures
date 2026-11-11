@@ -75,7 +75,7 @@
 
   <nav class="tabs">
     <button id="tab-cluster" class="on" onclick="show('cluster')">1 · Build a star cluster</button>
-    <button id="tab-chef" onclick="show('chef')">2 · Galaxy chef</button>
+    <button id="tab-chef" onclick="show('chef')">2 · Galaxy clock</button>
     <button id="tab-origin" onclick="show('origin')">3 · Where was it made?</button>
   </nav>
 
@@ -125,45 +125,60 @@
   <!-- ============================== GAME 2 ============================== -->
   <section class="game" id="game-chef">
     <div class="panel">
-      <h2>Galaxy chef: the [Mg/Fe] clock</h2>
-      <p>You have <b>8 units of star formation</b> to spend over <b>8 rounds</b> (1 round ≈ 250 Myr).</p>
-      <p>Each unit makes <b>3 Mg + 1 Fe at once</b> (core-collapse SN II). It also books iron from <b>Type Ia SNe</b>: <b>+1 Fe</b> one round later, <b>+1</b> two rounds later and <b>+1</b> four rounds later.</p>
-      <p>Stars born in a round inherit the pot's [Mg/Fe] at that moment. The customer gets the mass-weighted [Mg/Fe] of all your stars.</p>
+      <h2>Galaxy clock: race to the [Mg/Fe] target</h2>
+      <p>You decide <b>when your galaxy forms its stars</b> (always 10<sup>10</sup> M☉ in total). Press <b>Play</b> and watch the two kinds of supernovae fill the gas with magnesium and iron.</p>
+      <p><b style="color:var(--blue)">SN II</b> (massive stars) explode within ~40 Myr: lots of Mg, some Fe. <b style="color:var(--orange)">SN Ia</b> (white dwarfs) start after ~40 Myr and keep going for Gyr: almost only Fe.</p>
     </div>
 
     <div class="panel">
-      <label for="order"><b>Customer's order</b></label>
-      <select id="order" onchange="renderChef()"></select>
-      <p class="quiet" id="orderText"></p>
-      <label class="toggle"><input type="checkbox" id="topheavy" onchange="renderChef()"> Top-heavy IMF kitchen (4 Mg per unit instead of 3)</label>
-    </div>
-
-    <div class="panel">
-      <table>
-        <thead><tr><th>Round</th><th>Your units</th><th>Fe from SN Ia</th><th>Mg in pot</th><th>Fe in pot</th><th>pot [Mg/Fe]</th></tr></thead>
-        <tbody id="rounds"></tbody>
-      </table>
-      <p class="quiet" id="unitsLeft"></p>
-    </div>
-
-    <div class="panel">
-      <canvas id="mgfe" width="700" height="300" aria-label="Pot [Mg/Fe] per round"></canvas>
+      <label for="target"><b>Challenge</b></label>
+      <select id="target" onchange="renderClock()">
+        <option value="max">Round 1 · Alpha champion: highest [Mg/Fe] of your stars wins</option>
+        <option value="0.30">Round 2 · Elliptical: hit [Mg/Fe] = +0.30 exactly</option>
+        <option value="0.20">Round 3 · Disc galaxy: hit [Mg/Fe] = +0.20 exactly</option>
+        <option value="0.40">Round 4 · Mystery: hit [Mg/Fe] = +0.40 exactly</option>
+      </select>
       <div class="stats" style="margin-top:10px">
-        <div class="stat"><b id="starsMgFe">–</b><span>your stars' [Mg/Fe]</span></div>
-        <div class="stat"><b id="r8MgFe">–</b><span>[Mg/Fe] of round-8 stars</span></div>
+        <div class="stat"><b id="cStars">–</b><span>[Mg/Fe] of all your stars</span></div>
+        <div class="stat"><b id="cScore">–</b><span id="cScoreLab">distance to target</span></div>
       </div>
-      <div class="row" style="margin-top:12px">
-        <button class="act big" onclick="serve()">Serve the order</button>
-        <button class="act alt" onclick="clearRecipe()">Clear recipe</button>
+      <div class="slido" id="cSlido"></div>
+    </div>
+
+    <div class="panel">
+      <p style="margin-top:0"><b>Your star-formation history</b></p>
+      <div class="row">
+        <button class="act alt" onclick="preset(0, 0.3)">Burst 0.3 Gyr</button>
+        <button class="act alt" onclick="preset(0, 2)">2 Gyr</button>
+        <button class="act alt" onclick="preset(0, 10)">Steady 10 Gyr</button>
+        <button class="act alt" onclick="preset(3, 2)">Late starter</button>
       </div>
-      <div class="verdict" id="verdict"></div>
-      <p class="quiet" id="hint"></p>
+      <label class="quiet" for="tStart" style="display:block;margin-top:10px">start forming stars at <b id="tStartV"></b></label>
+      <input type="range" id="tStart" min="0" max="8" step="0.05" value="0" oninput="renderClock()" style="width:100%">
+      <label class="quiet" for="tDur" style="display:block;margin-top:6px">keep forming stars for <b id="tDurV"></b></label>
+      <input type="range" id="tDur" min="0" max="1" step="0.005" value="0.6" oninput="renderClock()" style="width:100%">
+      <label class="toggle"><input type="checkbox" id="topheavy" onchange="renderClock()"> Top-heavy IMF (more of the most massive stars)</label>
+    </div>
+
+    <div class="panel">
+      <div class="row" style="margin-bottom:10px">
+        <button class="act" id="playBtn" onclick="play()">▶ Play</button>
+        <button class="act alt" onclick="skipEnd()">Show the end</button>
+      </div>
+      <canvas id="clockCv" width="700" height="980" aria-label="Star formation, supernova rates, Mg and Fe, and [Mg/Fe] versus time"></canvas>
+      <p class="quiet" id="clockNow"></p>
+      <p class="quiet">Shaded: when your galaxy forms stars. Each new star copies the gas [Mg/Fe] at its birth; the orange line is the average of all your stars.</p>
     </div>
 
     <details class="panel">
-      <summary>The rules in numbers</summary>
-      <p>[Mg/Fe] = log₁₀(Mg/Fe) relative to a 1:1 pot, which we call solar. Pure SN II gives Mg/Fe = 3, i.e. [Mg/Fe] = +0.48.</p>
-      <p>Same model as notebook 03 in the course repository.</p>
+      <summary>Think about it</summary>
+      <p>1. Why can't anyone beat about +0.46 with a normal IMF, however short the burst?</p>
+      <p>2. Look at the SN Ia line after star formation stops. Do the stars you already formed notice that iron?</p>
+      <p>3. Two teams hit +0.10: one formed stars for 2 Gyr, one for 10 Gyr starting late. Can [Mg/Fe] alone tell them apart?</p>
+    </details>
+    <details class="panel">
+      <summary>The model in numbers</summary>
+      <p>Per M☉ of stars formed (Kroupa IMF): 0.011 SN II, each 0.11 M☉ Mg + 0.07 M☉ Fe, within 10 Myr; 0.0013 SN Ia, each 0.7 M☉ Fe, spread as 1/t from 40 Myr to 14 Gyr. Gas starts at 3.5×10<sup>10</sup> M☉; winds remove 1.5 M☉ of gas per M☉ of stars. Top-heavy IMF: 1.5× more SN II with more Mg per Fe. [Mg/Fe] of your stars = log of (all Mg locked in stars / all Fe locked in stars) relative to the Sun: atoms add up first, then the log. Same physics as notebook 03.</p>
     </details>
   </section>
 
@@ -207,7 +222,7 @@ function show(id) {
     document.getElementById('game-' + g).classList.toggle('on', g === id);
     document.getElementById('tab-' + g).classList.toggle('on', g === id);
   }
-  if (id === 'chef') renderChef(); else if (id === 'origin') renderOrigin(); else renderCluster();
+  if (id === 'chef') renderClock(); else if (id === 'origin') renderOrigin(); else renderCluster();
   history.replaceState(null, '', '#' + id);
   window.scrollTo(0, 0);
 }
@@ -322,103 +337,142 @@ function drawHist() {
   ctx.setLineDash([3, 4]); ctx.strokeStyle = '#9a9ab5'; ctx.lineWidth = 1.5; ctx.beginPath(); ctx.moveTo(X(8), T); ctx.lineTo(X(8), T + ph); ctx.stroke(); ctx.setLineDash([]);
 }
 
-/* ================= GAME 2: Galaxy chef ================= */
-const ROUNDS = 8, DELAYS = [1, 2, 4];
-let recipe = [0, 0, 0, 0, 0, 0, 0, 0];
-const ORDERS = [
-  { key: 'A', name: 'A. Giant elliptical', text: 'Use all 8 units. Your stars must have [Mg/Fe] ≥ +0.42.',
-    ok: r => r.units === 8 && r.stars >= 0.42,
-    hint: 'Ellipticals formed fast. What happens to the pot once SN Ia start delivering iron?' },
-  { key: 'B', name: 'B. Milky-Way disc', text: 'Use all 8 units, form stars in at least 6 rounds, and get the stars to [Mg/Fe] ≤ +0.17. (1 unit every round gives +0.18: beat it!)',
-    ok: r => r.units === 8 && r.active >= 6 && r.stars <= 0.17,
-    hint: 'Early stars seed SN Ia iron for later rounds. Try fewer stars early and more late.' },
-  { key: 'C', name: 'C. Iron-rich today', text: 'Use all 8 units, form some stars in round 8, and those round-8 stars must have [Mg/Fe] ≤ 0.',
-    ok: r => r.units === 8 && recipe[7] > 0 && r.r8 <= 0,
-    hint: 'Round-8 stars only see iron from SN Ia booked 1, 2 and 4 rounds earlier. Plant those earlier.' },
-  { key: 'D', name: 'D. Super-alpha', text: 'Use all 8 units. Your stars must have [Mg/Fe] ≥ +0.55.',
-    ok: r => r.units === 8 && r.stars >= 0.55,
-    hint: 'Even pure SN II gives Mg/Fe = 3, i.e. +0.48. What sets that 3? Try the top-heavy IMF kitchen.' },
-];
-
-function kitchen(rec, mgPerUnit) {
-  let mg = 0, fe = 0; const due = new Array(ROUNDS + 6).fill(0);
-  const rows = []; let wsum = 0, rsum = 0;
-  for (let r = 0; r < ROUNDS; r++) {
-    const ia = due[r]; fe += ia;
-    const u = rec[r]; mg += mgPerUnit * u; fe += u;
-    for (const d of DELAYS) due[r + d] += u;
-    const ratio = fe > 0 ? mg / fe : NaN;
-    if (u > 0) { wsum += u; rsum += u * ratio; }
-    rows.push({ r: r + 1, u, ia, mg, fe, x: fe > 0 ? Math.log10(ratio) : NaN });
-  }
-  return { rows, units: rec.reduce((a, b) => a + b, 0), active: rec.filter(u => u > 0).length,
-           stars: wsum ? Math.log10(rsum / wsum) : NaN, r8: rows[7].x };
-}
-
+/* ================= GAME 2: Galaxy clock ================= */
+const CK = { dt: 0.01, tmax: 10, Mstar: 1e10, gas0: 3.5e10, eta: 1.5,
+  nII: 0.0109, mgII: 0.11, feII: 0.07, nIa: 0.0013, feIa: 0.7, tIa: 0.04, tH: 14,
+  mgfeSun: 0.548, feSun: 0.00129 };
+let clockRes = null, clockT = CK.tmax, clockTimer = null;
 function sgn(x) { return isNaN(x) ? '–' : (x >= 0 ? '+' : '−') + Math.abs(x).toFixed(2); }
 
-function step(r, d) {
-  const total = recipe.reduce((a, b) => a + b, 0);
-  if (d > 0 && total >= 8) return;
-  recipe[r] = Math.max(0, recipe[r] + d);
-  document.getElementById('verdict').textContent = ''; document.getElementById('hint').textContent = '';
-  renderChef();
-}
-function clearRecipe() { recipe = recipe.map(() => 0); document.getElementById('verdict').textContent = ''; document.getElementById('hint').textContent = ''; renderChef(); }
+function durFromSlider(v) { return 0.05 * Math.pow(200, v); }        // 0.05 .. 10 Gyr, log slider
+function sliderFromDur(d) { return Math.log(d / 0.05) / Math.log(200); }
+function fmtT(t) { return t < 1 ? Math.round(t * 1000) + ' Myr' : t.toFixed(1) + ' Gyr'; }
+function preset(t0, d) { document.getElementById('tStart').value = t0; document.getElementById('tDur').value = sliderFromDur(d); clockT = CK.tmax; renderClock(); }
 
-function currentOrder() { return ORDERS.find(o => o.key === document.getElementById('order').value) || ORDERS[0]; }
-
-function renderChef() {
-  const sel = document.getElementById('order');
-  if (!sel.options.length) for (const o of ORDERS) sel.add(new Option(o.name, o.key));
-  document.getElementById('orderText').textContent = currentOrder().text;
-  const res = kitchen(recipe, document.getElementById('topheavy').checked ? 4 : 3);
-  const tb = document.getElementById('rounds'); tb.innerHTML = '';
-  for (const row of res.rows) {
-    const tr = document.createElement('tr');
-    const cls = isNaN(row.x) ? '' : (row.x > 0.005 ? 'pos' : 'neg');
-    tr.innerHTML = `<td>${row.r}</td>
-      <td><span class="stepper"><button aria-label="fewer units in round ${row.r}" onclick="step(${row.r - 1},-1)">−</button><output>${row.u}</output><button aria-label="more units in round ${row.r}" onclick="step(${row.r - 1},1)">+</button></span></td>
-      <td>${row.ia || ''}</td><td>${row.mg}</td><td>${row.fe}</td><td class="${cls}">${row.fe ? sgn(row.x) : 'empty'}</td>`;
-    tb.appendChild(tr);
+function runClock(t0, dur, top) {
+  const N = Math.round(CK.tmax / CK.dt), dt = CK.dt * 1e9;           // yr per step
+  const t = [], sfr = [], rII = [], rIa = [], mgP = [], feIIP = [], feIaP = [], gasMgFe = [], gasFeH = [];
+  const t1 = Math.min(t0 + dur, CK.tmax), span = Math.max(t1 - t0, CK.dt);
+  const sfrOn = CK.Mstar / (span * 1e9);                              // Msun/yr, flat between t0 and t1
+  const nII = CK.nII * (top ? 1.5 : 1), mgII = CK.mgII * (top ? 1.0 : 1), feII = CK.feII * (top ? 0.77 : 1);
+  const norm = 1 / Math.log(CK.tH / CK.tIa);
+  let gas = CK.gas0, mg = 0, fe = 0, cMg = 0, cFeII = 0, cFeIa = 0, sMg = 0, sFe = 0;
+  for (let i = 0; i < N; i++) {
+    const ti = (i + 0.5) * CK.dt; t.push(ti);
+    const s = (ti >= t0 && ti < t1) ? sfrOn : 0; sfr.push(s);
+    let ia = 0;                                                      // SN Ia per yr: sum over earlier star formation
+    for (let j = 0; j < i; j++) { const age = ti - t[j]; if (sfr[j] > 0 && age >= CK.tIa) ia += sfr[j] * CK.dt * CK.nIa * norm / age; }
+    rII.push(s * nII); rIa.push(ia);                                  // both per yr
+    // stars lock the current gas composition, winds remove gas
+    const used = s * dt, xMg = gas > 0 ? mg / gas : 0, xFe = gas > 0 ? fe / gas : 0;
+    sMg += used * xMg; sFe += used * xFe;
+    const out = Math.min(gas, used * (1 + CK.eta));
+    mg -= out * xMg; fe -= out * xFe; gas -= out;
+    const dMg = s * dt * nII * mgII, dFeII = s * dt * nII * feII, dFeIa = ia * dt * CK.feIa;
+    mg += dMg; fe += dFeII + dFeIa; cMg += dMg; cFeII += dFeII; cFeIa += dFeIa;
+    mgP.push(cMg); feIIP.push(cFeII); feIaP.push(cFeIa);
+    gasMgFe.push(fe > 0 ? Math.log10(mg / fe / CK.mgfeSun) : NaN);
+    gasFeH.push(fe > 0 && gas > 0 ? Math.log10(fe / gas / CK.feSun) : NaN);
   }
-  const left = 8 - res.units;
-  document.getElementById('unitsLeft').textContent = left ? `${left} unit${left > 1 ? 's' : ''} of star formation left to place.` : 'All 8 units placed.';
-  document.getElementById('starsMgFe').textContent = sgn(res.stars);
-  document.getElementById('r8MgFe').textContent = recipe[7] > 0 ? sgn(res.r8) : '–';
-  drawMgFe(res);
-  return res;
+  return { t, sfr, rII: rII.map(x => x * 100), rIa: rIa.map(x => x * 100),   // per century
+           mgP, feIIP, feIaP, gasMgFe, gasFeH, stars: sFe > 0 ? Math.log10(sMg / sFe / CK.mgfeSun) : NaN, t0, t1 };
 }
 
-function serve() {
-  const res = renderChef(), o = currentOrder(), v = document.getElementById('verdict'), h = document.getElementById('hint');
-  if (res.units !== 8) { v.className = 'verdict bad'; v.textContent = `Place all 8 units first (${8 - res.units} left).`; h.textContent = ''; return; }
-  if (o.ok(res)) { v.className = 'verdict ok'; v.textContent = 'Order filled ✓'; h.textContent = o.key === 'D' ? 'You changed the kitchen, not the recipe: a top-heavy IMF mimics a fast clock.' : ''; }
-  else { v.className = 'verdict bad'; v.textContent = 'The customer sends it back ✗'; h.textContent = 'Hint: ' + o.hint; }
+function renderClock() {
+  const t0 = +document.getElementById('tStart').value;
+  let dur = durFromSlider(+document.getElementById('tDur').value);
+  if (t0 + dur > CK.tmax) dur = CK.tmax - t0;
+  document.getElementById('tStartV').textContent = t0 === 0 ? 'the beginning' : fmtT(t0);
+  document.getElementById('tDurV').textContent = fmtT(Math.max(dur, 0.01));
+  clockRes = runClock(t0, Math.max(dur, 0.01), document.getElementById('topheavy').checked);
+  const target = document.getElementById('target').value, st = clockRes.stars;
+  document.getElementById('cStars').textContent = sgn(st);
+  const sc = document.getElementById('cScore'), sl = document.getElementById('cScoreLab'), slido = document.getElementById('cSlido');
+  if (target === 'max') { sc.textContent = sgn(st); sl.textContent = 'your score (higher wins)'; }
+  else { const d = Math.abs(st - +target); sc.textContent = d.toFixed(2) + ' dex'; sl.textContent = `distance to ${sgn(+target)} (smaller wins)`; }
+  const top = document.getElementById('topheavy').checked ? ', top-heavy IMF' : '';
+  slido.innerHTML = `Send to Slido: <strong>team name, ${sgn(st)}, ${fmtT(clockRes.t0)} + ${fmtT(clockRes.t1 - clockRes.t0)}${top}</strong>`;
+  drawClock();
+  return clockRes;
 }
 
-function drawMgFe(res) {
-  const { ctx, w, h } = fitCanvas(document.getElementById('mgfe'));
+function play() {
+  if (clockTimer) { clearInterval(clockTimer); clockTimer = null; document.getElementById('playBtn').textContent = '▶ Play'; return; }
+  clockT = 0; document.getElementById('playBtn').textContent = '❚❚ Pause';
+  clockTimer = setInterval(() => {
+    clockT += clockT < 1 ? 0.02 : 0.08;                                 // slow at first: that is where the clock ticks
+    if (clockT >= CK.tmax) { clockT = CK.tmax; clearInterval(clockTimer); clockTimer = null; document.getElementById('playBtn').textContent = '▶ Play'; }
+    drawClock();
+  }, 40);
+}
+function skipEnd() { if (clockTimer) { clearInterval(clockTimer); clockTimer = null; document.getElementById('playBtn').textContent = '▶ Play'; } clockT = CK.tmax; drawClock(); }
+
+function drawClock() {
+  if (!clockRes) return;
+  const r = clockRes, { ctx, w, h } = fitCanvas(document.getElementById('clockCv'));
   ctx.clearRect(0, 0, w, h);
-  const L = 46, R = 12, T = 14, B = 34, pw = w - L - R, ph = h - T - B, y0 = -0.3, y1 = 0.65;
-  const X = r => L + (r - 0.5) / ROUNDS * pw, Y = v => T + (y1 - v) / (y1 - y0) * ph;
-  ctx.font = '12px system-ui'; ctx.fillStyle = '#9a9ab5'; ctx.strokeStyle = '#3a3956'; ctx.lineWidth = 1;
-  ctx.textAlign = 'right';
-  for (const v of [-0.2, 0, 0.2, 0.4, 0.6]) { ctx.beginPath(); ctx.moveTo(L, Y(v)); ctx.lineTo(L + pw, Y(v)); ctx.stroke(); ctx.fillText(sgn(v).replace('.00', '.0'), L - 6, Y(v) + 4); }
-  ctx.textAlign = 'center';
-  for (let r = 1; r <= ROUNDS; r++) ctx.fillText(r, X(r), h - 16);
-  ctx.fillText('round (≈ 250 Myr each)', L + pw / 2, h - 2);
-  ctx.strokeStyle = '#ef5d8f'; ctx.setLineDash([4, 4]); ctx.beginPath(); ctx.moveTo(L, Y(Math.log10(3))); ctx.lineTo(L + pw, Y(Math.log10(3))); ctx.stroke(); ctx.setLineDash([]);
-  ctx.fillStyle = '#ef5d8f'; ctx.textAlign = 'left'; ctx.fillText('pure SN II', L + 4, Y(Math.log10(3)) - 5);
-  // pot line
-  ctx.strokeStyle = '#1e8fd5'; ctx.lineWidth = 2.5; ctx.beginPath(); let started = false;
-  for (const row of res.rows) { if (isNaN(row.x)) continue; const x = X(row.r), y = Y(Math.max(y0, Math.min(y1, row.x))); started ? ctx.lineTo(x, y) : ctx.moveTo(x, y); started = true; }
-  ctx.stroke();
-  // stars born (circles sized by units)
-  for (const row of res.rows) if (row.u > 0) {
-    ctx.beginPath(); ctx.fillStyle = '#f5a623';
-    ctx.arc(X(row.r), Y(Math.max(y0, Math.min(y1, row.x))), 4 + 2.2 * row.u, 0, 2 * Math.PI); ctx.fill();
+  const L = 54, R = 12, gap = 26, B = 36, panels = 4, ph = (h - B - gap * panels) / panels, pw = w - L - R;
+  const n = Math.min(r.t.length, Math.max(1, Math.round(clockT / CK.dt)));
+  const X = t => L + t / CK.tmax * pw;
+  const C = { blue: '#1e8fd5', orange: '#f5a623', pink: '#ef5d8f', green: '#5cc8a1', ink: '#f4f4f6', quiet: '#9a9ab5', line: '#3a3956' };
+  function panel(k, title, y0, y1, ticks, fmtTick) {
+    const T = gap + k * (ph + gap), Y = v => T + (y1 - v) / (y1 - y0) * ph;
+    ctx.font = '12px system-ui'; ctx.strokeStyle = C.line; ctx.lineWidth = 1; ctx.fillStyle = C.quiet; ctx.textAlign = 'right';
+    for (const v of ticks) { ctx.beginPath(); ctx.moveTo(L, Y(v)); ctx.lineTo(L + pw, Y(v)); ctx.stroke(); ctx.fillText(fmtTick(v), L - 6, Y(v) + 4); }
+    ctx.textAlign = 'left'; ctx.fillStyle = C.ink; ctx.font = '600 13px system-ui'; ctx.fillText(title, L, T - 7);
+    return Y;
   }
+  function line(Y, arr, col, dash, lo, hi) {
+    ctx.strokeStyle = col; ctx.lineWidth = 2.5; ctx.setLineDash(dash || []); ctx.beginPath(); let on = false;
+    for (let i = 0; i < n; i++) { const v = arr[i]; if (!isFinite(v)) { on = false; continue; }
+      const y = Y(Math.max(lo, Math.min(hi, v))); on ? ctx.lineTo(X(r.t[i]), y) : ctx.moveTo(X(r.t[i]), y); on = true; }
+    ctx.stroke(); ctx.setLineDash([]);
+  }
+  function legend(k, items, bottom) {
+    const T = gap + k * (ph + gap); ctx.font = '600 12px system-ui'; ctx.textAlign = 'right'; let x = L + pw - 4;
+    for (const [lab, col] of items.slice().reverse()) { ctx.fillStyle = col; ctx.fillText(lab, x, bottom ? T + ph - 6 : T + 14); x -= ctx.measureText(lab).width + 12; }
+  }
+  // 1 star formation
+  const sMax = Math.max(...r.sfr) * 1.15;
+  let Y = panel(0, 'Star formation [M☉/yr]', 0, sMax, [0, sMax / 2.3, sMax / 1.15], v => v >= 10 ? v.toFixed(0) : v.toFixed(1));
+  ctx.fillStyle = 'rgba(245,244,246,0.12)'; ctx.beginPath(); ctx.moveTo(X(0), Y(0));
+  for (let i = 0; i < n; i++) ctx.lineTo(X(r.t[i]), Y(r.sfr[i])); ctx.lineTo(X(r.t[n - 1]), Y(0)); ctx.fill();
+  line(Y, r.sfr, C.ink, null, 0, sMax);
+  // 2 supernova rates (log)
+  Y = panel(1, 'Supernovae per century (log scale)', -3, 3, [-2, 0, 2], v => ({ '-2': '0.01', '0': '1', '2': '100' })[v]);
+  legend(1, [['SN II', C.blue], ['SN Ia', C.orange]]);
+  line(Y, r.rII.map(v => v > 0 ? Math.log10(v) : NaN), C.blue, null, -3, 3);
+  line(Y, r.rIa.map(v => v > 0 ? Math.log10(v) : NaN), C.orange, null, -3, 3);
+  // 3 elements made (cumulative, 10^7 Msun)
+  const eMax = Math.max(r.mgP[r.t.length - 1], r.feIIP[r.t.length - 1] + r.feIaP[r.t.length - 1]) / 1e7 * 1.1;
+  Y = panel(2, 'Made so far [10⁷ M☉]', 0, eMax, [0, eMax / 2.2, eMax / 1.1], v => v.toFixed(0));
+  legend(2, [['Mg', C.blue], ['Fe (total)', C.ink], ['Fe from SN Ia', C.orange]], true);
+  line(Y, r.mgP.map(v => v / 1e7), C.blue, null, 0, eMax);
+  line(Y, r.feIIP.map((v, i) => (v + r.feIaP[i]) / 1e7), C.ink, null, 0, eMax);
+  line(Y, r.feIaP.map(v => v / 1e7), C.orange, [5, 4], 0, eMax);
+  // 4 [Mg/Fe] of the gas
+  Y = panel(3, '[Mg/Fe] of the gas', -0.4, 0.7, [-0.2, 0, 0.2, 0.4, 0.6], v => sgn(v).replace('.00', '.0'));
+  const tg = document.getElementById('target').value;
+  if (tg !== 'max') { ctx.fillStyle = 'rgba(92,200,161,0.18)'; ctx.fillRect(L, Y(+tg + 0.02), pw, Y(+tg - 0.02) - Y(+tg + 0.02)); ctx.fillStyle = C.green; ctx.textAlign = 'left'; ctx.font = '12px system-ui'; ctx.fillText('target', L + 4, Y(+tg) - 6); }
+  ctx.strokeStyle = C.pink; ctx.setLineDash([4, 4]); ctx.lineWidth = 1.5; ctx.beginPath(); ctx.moveTo(L, Y(0.46)); ctx.lineTo(L + pw, Y(0.46)); ctx.stroke(); ctx.setLineDash([]);
+  ctx.fillStyle = C.pink; ctx.textAlign = 'right'; ctx.fillText('pure SN II', L + pw - 4, Y(0.46) - 5);
+  line(Y, r.gasMgFe, C.green, null, -0.4, 0.7);
+  if (r.t[n - 1] >= r.t1 - CK.dt) {                                   // the answer: average of the stars formed
+    ctx.strokeStyle = C.orange; ctx.lineWidth = 3; ctx.beginPath(); ctx.moveTo(X(r.t0), Y(r.stars)); ctx.lineTo(X(r.t1), Y(r.stars)); ctx.stroke();
+    ctx.fillStyle = C.orange; ctx.font = '600 12px system-ui'; ctx.textAlign = r.t1 > 7 ? 'right' : 'left';
+    ctx.fillText('your stars ' + sgn(r.stars), r.t1 > 7 ? X(r.t1) - 4 : X(r.t1) + 4, Y(r.stars) + 4);
+  }
+  // shade when stars form, in the [Mg/Fe] panel
+  ctx.fillStyle = 'rgba(245,166,35,0.10)'; const T3 = gap + 3 * (ph + gap);
+  ctx.fillRect(X(r.t0), T3, Math.max(2, X(Math.min(r.t1, r.t[n - 1])) - X(r.t0)), ph);
+  // time axis + cursor
+  ctx.fillStyle = C.quiet; ctx.textAlign = 'center'; ctx.font = '12px system-ui';
+  for (let t = 0; t <= CK.tmax; t += 2) ctx.fillText(t, X(t), h - 18);
+  ctx.fillText('time since the galaxy started [Gyr]', L + pw / 2, h - 3);
+  ctx.strokeStyle = 'rgba(244,244,246,0.5)'; ctx.lineWidth = 1; ctx.beginPath(); ctx.moveTo(X(r.t[n - 1]), gap - 4); ctx.lineTo(X(r.t[n - 1]), h - B + 4); ctx.stroke();
+  const i = n - 1;
+  document.getElementById('clockNow').textContent =
+    `t = ${fmtT(r.t[i])}:  SN II ${r.rII[i].toFixed(2)}/century,  SN Ia ${r.rIa[i].toFixed(2)}/century,  gas [Mg/Fe] ${sgn(r.gasMgFe[i])},  gas [Fe/H] ${sgn(r.gasFeH[i])}`;
 }
 
 /* ================= GAME 3: where was it made? ================= */
@@ -508,9 +562,9 @@ function answerQuiz(k) {
 
 /* ---------------- start ---------------- */
 function tabFromHash() { return ['chef', 'origin'].includes(location.hash.slice(1)) ? location.hash.slice(1) : 'cluster'; }
-window.addEventListener('resize', () => { renderCluster(); renderChef(); });
+window.addEventListener('resize', () => { renderCluster(); drawClock(); });
 window.addEventListener('hashchange', () => show(tabFromHash()));
-renderChef();
+renderClock();
 show(tabFromHash());
 </script>
 </body>
