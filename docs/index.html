@@ -4,7 +4,7 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>Galaxies course games</title>
-<meta name="description" content="Two classroom games on the stellar IMF and the [Mg/Fe] clock (Masaryk University, Galaxies course).">
+<meta name="description" content="Three classroom games on the stellar IMF, the [Mg/Fe] clock and where the elements were made (Masaryk University, Galaxies course).">
 <style>
   :root {
     --bg: #1b1a2e; --panel: #24233b; --line: #3a3956; --ink: #f4f4f6; --quiet: #9a9ab5;
@@ -51,17 +51,32 @@
   a { color: var(--blue); }
   footer { margin-top: 28px; color: var(--quiet); font-size: .85rem; }
   .row button.act.alt { flex: 1 1 auto; }
+  .ptable { display: grid; grid-template-columns: repeat(18, 1fr); gap: 2px; }
+  .el { position: relative; aspect-ratio: 1; border: 0; padding: 0; border-radius: 3px; cursor: pointer; overflow: hidden;
+    color: #fff; font-weight: 700; font-size: clamp(.5rem, 2.1vw, .85rem); display: flex; align-items: center; justify-content: center; }
+  .el span { position: relative; text-shadow: 0 0 3px #000, 0 0 2px #000; }
+  .el.sel { outline: 2px solid #fff; outline-offset: 1px; z-index: 1; }
+  .gap { aspect-ratio: 1; }
+  .legend { display: flex; flex-wrap: wrap; gap: 6px 14px; margin-top: 10px; font-size: .85rem; color: var(--quiet); }
+  .legend i { display: inline-block; width: 12px; height: 12px; border-radius: 3px; margin-right: 5px; vertical-align: -1px; }
+  .bar { display: flex; height: 26px; border-radius: 6px; overflow: hidden; margin: 8px 0; }
+  .bar div { display: flex; align-items: center; justify-content: center; font-size: .78rem; font-weight: 700; color: #fff; text-shadow: 0 0 3px #000; }
+  .choices { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; margin-top: 10px; }
+  .choices button { padding: 12px 8px; border-radius: 10px; border: 2px solid var(--line); background: var(--bg); color: var(--ink); font-size: .95rem; font-weight: 600; cursor: pointer; }
+  .choices button.right { border-color: var(--green); } .choices button.wrong { border-color: var(--pink); opacity: .7; }
+  .big-el { font-size: 2.6rem; font-weight: 800; color: var(--blue); margin: 4px 0 0; }
 </style>
 </head>
 <body>
 <main>
-  <h1>Galaxies course: two games</h1>
+  <h1>Galaxies course: three games</h1>
   <p class="quiet">Stellar populations, the IMF and chemical evolution · Masaryk University</p>
   <p class="slido">Join the class Slido: <a href="https://app.sli.do/event/fAi3QWgSvPf3EnTHoNAEUi" target="_blank" rel="noopener"><strong>Lecture 1 · #2458698</strong></a> &nbsp;·&nbsp; <a href="https://app.sli.do/event/s76TJyV1cGRxvwUWRgkj4F" target="_blank" rel="noopener"><strong>Lecture 2 · #1642685</strong></a> <span class="quiet">(or type the code at slido.com)</span></p>
 
   <nav class="tabs">
     <button id="tab-cluster" class="on" onclick="show('cluster')">1 · Build a star cluster</button>
     <button id="tab-chef" onclick="show('chef')">2 · Galaxy chef</button>
+    <button id="tab-origin" onclick="show('origin')">3 · Where was it made?</button>
   </nav>
 
   <!-- ============================== GAME 1 ============================== -->
@@ -152,6 +167,34 @@
     </details>
   </section>
 
+  <!-- ============================== GAME 3 ============================== -->
+  <section class="game" id="game-origin">
+    <div class="panel">
+      <h2>Where was it made?</h2>
+      <p>Every atom heavier than helium was made in a star. Guess the main factory, then tap any element in the table to see the full answer.</p>
+    </div>
+
+    <div class="panel">
+      <p class="quiet" id="quizScore">Score: 0 / 0</p>
+      <p class="big-el" id="quizEl">–</p>
+      <p id="quizHint" class="quiet"></p>
+      <div class="choices" id="quizChoices"></div>
+      <div id="quizResult"></div>
+      <div class="row" style="margin-top:10px"><button class="act" onclick="nextQuiz()">Next element</button></div>
+    </div>
+
+    <div class="panel">
+      <div class="ptable" id="ptable"></div>
+      <div class="legend" id="legend"></div>
+      <div id="elInfo" style="margin-top:12px"><p class="quiet">Tap an element.</p></div>
+    </div>
+
+    <details class="panel">
+      <summary>Where do these numbers come from?</summary>
+      <p>Approximate share of each source in the Solar System's atoms, rounded for teaching: after J. A. Johnson (2019, Science 363, 474) and Kobayashi, Karakas &amp; Lugaro (2020, ApJ 900, 179); s/r split after Arlandini et al. (1999) and Bisterzo et al. (2014). The r-process site is still debated: neutron-star mergers are confirmed, rare kinds of supernovae may add. Data: <code>stellarpops/origins.py</code>.</p>
+    </details>
+  </section>
+
   <footer>
     Notebooks, code and animations: <a href="https://github.com/Azeret/stellar-populations-lectures">github.com/Azeret/stellar-populations-lectures</a>
   </footer>
@@ -160,11 +203,11 @@
 <script>
 /* ---------------- tabs ---------------- */
 function show(id) {
-  for (const g of ['cluster', 'chef']) {
+  for (const g of ['cluster', 'chef', 'origin']) {
     document.getElementById('game-' + g).classList.toggle('on', g === id);
     document.getElementById('tab-' + g).classList.toggle('on', g === id);
   }
-  if (id === 'chef') renderChef(); else renderCluster();
+  if (id === 'chef') renderChef(); else if (id === 'origin') renderOrigin(); else renderCluster();
   history.replaceState(null, '', '#' + id);
   window.scrollTo(0, 0);
 }
@@ -378,11 +421,97 @@ function drawMgFe(res) {
   }
 }
 
+/* ================= GAME 3: where was it made? ================= */
+// [Z, symbol, name, row, column, {source: fraction}]  (generated from stellarpops/origins.py)
+const ELS = [[1,"H","hydrogen",0,0,{"bb":1.0}],[2,"He","helium",0,17,{"bb":0.92,"agb":0.04,"ccsn":0.04}],[3,"Li","lithium",1,0,{"bb":0.25,"cr":0.15,"agb":0.6}],[4,"Be","beryllium",1,1,{"cr":1.0}],[5,"B","boron",1,12,{"cr":0.9,"ccsn":0.1}],[6,"C","carbon",1,13,{"agb":0.5,"ccsn":0.5}],[7,"N","nitrogen",1,14,{"agb":0.6,"ccsn":0.4}],[8,"O","oxygen",1,15,{"ccsn":0.95,"agb":0.05}],[9,"F","fluorine",1,16,{"agb":0.5,"ccsn":0.5}],[10,"Ne","neon",1,17,{"ccsn":1.0}],[11,"Na","sodium",2,0,{"ccsn":0.9,"agb":0.1}],[12,"Mg","magnesium",2,1,{"ccsn":0.95,"ia":0.05}],[13,"Al","aluminium",2,12,{"ccsn":0.95,"agb":0.05}],[14,"Si","silicon",2,13,{"ccsn":0.75,"ia":0.25}],[15,"P","phosphorus",2,14,{"ccsn":1.0}],[16,"S","sulphur",2,15,{"ccsn":0.7,"ia":0.3}],[17,"Cl","chlorine",2,16,{"ccsn":0.9,"ia":0.1}],[18,"Ar","argon",2,17,{"ccsn":0.7,"ia":0.3}],[19,"K","potassium",3,0,{"ccsn":0.9,"ia":0.1}],[20,"Ca","calcium",3,1,{"ccsn":0.7,"ia":0.3}],[21,"Sc","scandium",3,2,{"ccsn":1.0}],[22,"Ti","titanium",3,3,{"ccsn":0.8,"ia":0.2}],[23,"V","vanadium",3,4,{"ccsn":0.5,"ia":0.5}],[24,"Cr","chromium",3,5,{"ccsn":0.4,"ia":0.6}],[25,"Mn","manganese",3,6,{"ccsn":0.25,"ia":0.75}],[26,"Fe","iron",3,7,{"ccsn":0.4,"ia":0.6}],[27,"Co","cobalt",3,8,{"ccsn":0.6,"ia":0.4}],[28,"Ni","nickel",3,9,{"ccsn":0.4,"ia":0.6}],[29,"Cu","copper",3,10,{"ccsn":0.8,"agb":0.05,"ia":0.15}],[30,"Zn","zinc",3,11,{"ccsn":0.9,"agb":0.05,"ia":0.05}],[31,"Ga","gallium",3,12,{"ccsn":0.6,"agb":0.4}],[32,"Ge","germanium",3,13,{"ccsn":0.6,"agb":0.4}],[33,"As","arsenic",3,14,{"ccsn":0.4,"agb":0.2,"r":0.4}],[34,"Se","selenium",3,15,{"ccsn":0.4,"agb":0.1,"r":0.5}],[35,"Br","bromine",3,16,{"ccsn":0.3,"agb":0.1,"r":0.6}],[36,"Kr","krypton",3,17,{"ccsn":0.4,"agb":0.3,"r":0.3}],[37,"Rb","rubidium",4,0,{"agb":0.5,"r":0.5}],[38,"Sr","strontium",4,1,{"agb":0.7,"ccsn":0.1,"r":0.2}],[39,"Y","yttrium",4,2,{"agb":0.7,"ccsn":0.1,"r":0.2}],[40,"Zr","zirconium",4,3,{"agb":0.65,"ccsn":0.1,"r":0.25}],[41,"Nb","niobium",4,4,{"agb":0.6,"r":0.4}],[42,"Mo","molybdenum",4,5,{"agb":0.5,"ccsn":0.2,"r":0.3}],[43,"Tc","technetium",4,6,{"none":1.0}],[44,"Ru","ruthenium",4,7,{"agb":0.3,"ccsn":0.1,"r":0.6}],[45,"Rh","rhodium",4,8,{"agb":0.2,"r":0.8}],[46,"Pd","palladium",4,9,{"agb":0.5,"r":0.5}],[47,"Ag","silver",4,10,{"agb":0.2,"r":0.8}],[48,"Cd","cadmium",4,11,{"agb":0.6,"r":0.4}],[49,"In","indium",4,12,{"agb":0.6,"r":0.4}],[50,"Sn","tin",4,13,{"agb":0.7,"r":0.3}],[51,"Sb","antimony",4,14,{"agb":0.3,"r":0.7}],[52,"Te","tellurium",4,15,{"agb":0.2,"r":0.8}],[53,"I","iodine",4,16,{"agb":0.05,"r":0.95}],[54,"Xe","xenon",4,17,{"agb":0.2,"r":0.8}],[55,"Cs","caesium",5,0,{"agb":0.15,"r":0.85}],[56,"Ba","barium",5,1,{"agb":0.85,"r":0.15}],[57,"La","lanthanum",8,2,{"agb":0.75,"r":0.25}],[58,"Ce","cerium",8,3,{"agb":0.8,"r":0.2}],[59,"Pr","praseodymium",8,4,{"agb":0.5,"r":0.5}],[60,"Nd","neodymium",8,5,{"agb":0.6,"r":0.4}],[61,"Pm","promethium",8,6,{"none":1.0}],[62,"Sm","samarium",8,7,{"agb":0.3,"r":0.7}],[63,"Eu","europium",8,8,{"agb":0.05,"r":0.95}],[64,"Gd","gadolinium",8,9,{"agb":0.15,"r":0.85}],[65,"Tb","terbium",8,10,{"agb":0.05,"r":0.95}],[66,"Dy","dysprosium",8,11,{"agb":0.15,"r":0.85}],[67,"Ho","holmium",8,12,{"agb":0.1,"r":0.9}],[68,"Er","erbium",8,13,{"agb":0.2,"r":0.8}],[69,"Tm","thulium",8,14,{"agb":0.15,"r":0.85}],[70,"Yb","ytterbium",8,15,{"agb":0.4,"r":0.6}],[71,"Lu","lutetium",8,16,{"agb":0.2,"r":0.8}],[72,"Hf","hafnium",5,3,{"agb":0.5,"r":0.5}],[73,"Ta","tantalum",5,4,{"agb":0.4,"r":0.6}],[74,"W","tungsten",5,5,{"agb":0.55,"r":0.45}],[75,"Re","rhenium",5,6,{"agb":0.1,"r":0.9}],[76,"Os","osmium",5,7,{"agb":0.1,"r":0.9}],[77,"Ir","iridium",5,8,{"agb":0.01,"r":0.99}],[78,"Pt","platinum",5,9,{"agb":0.05,"r":0.95}],[79,"Au","gold",5,10,{"agb":0.05,"r":0.95}],[80,"Hg","mercury",5,11,{"agb":0.6,"r":0.4}],[81,"Tl","thallium",5,12,{"agb":0.75,"r":0.25}],[82,"Pb","lead",5,13,{"agb":0.8,"r":0.2}],[83,"Bi","bismuth",5,14,{"agb":0.4,"r":0.6}],[84,"Po","polonium",5,15,{"none":1.0}],[85,"At","astatine",5,16,{"none":1.0}],[86,"Rn","radon",5,17,{"none":1.0}],[87,"Fr","francium",6,0,{"none":1.0}],[88,"Ra","radium",6,1,{"none":1.0}],[89,"Ac","actinium",9,2,{"none":1.0}],[90,"Th","thorium",9,3,{"r":1.0}],[91,"Pa","protactinium",9,4,{"none":1.0}],[92,"U","uranium",9,5,{"r":1.0}],[93,"Np","neptunium",9,6,{"none":1.0}],[94,"Pu","plutonium",9,7,{"none":1.0}]];
+const SRC = {
+  bb:   ['Big Bang', '#b39dff', 'made in the first minutes after the Big Bang, 13.8 Gyr ago'],
+  cr:   ['cosmic rays', '#d9d9e3', 'fast cosmic-ray protons smashing C, N and O nuclei in space'],
+  agb:  ['dying low-mass stars', '#5cc8a1', 'AGB stars of 1–8 M☉ near the end of their lives: carbon, nitrogen and the s-process (slow neutron captures); for lithium also novae'],
+  ccsn: ['exploding massive stars', '#1e8fd5', 'stars above 8 M☉ that end as core-collapse supernovae, 3–40 Myr after they form'],
+  ia:   ['exploding white dwarfs', '#f5a623', 'Type Ia supernovae: white dwarfs in binaries, from ~40 Myr to many Gyr later'],
+  r:    ['merging neutron stars', '#ef5d8f', 'rapid neutron captures (r-process) in neutron-star mergers, maybe also rare supernovae'],
+  none: ['no stable isotopes', '#4a4a5e', 'all isotopes are radioactive and short-lived: made in labs or as decay products'],
+};
+const ORDER = ['bb', 'cr', 'agb', 'ccsn', 'ia', 'r', 'none'];
+const QUIZ = [['H', 'in the water in your cells'], ['He', 'in a party balloon'], ['Li', 'in your phone battery'], ['C', 'in your DNA'],
+  ['N', 'in your proteins'], ['O', 'that you breathe'], ['Na', 'in table salt'], ['Mg', 'in green leaves (chlorophyll)'],
+  ['Si', 'in sand and computer chips'], ['P', 'in your bones and DNA'], ['Ca', 'in your bones'], ['Fe', 'in your blood'],
+  ['Ni', 'in a coin'], ['Cu', 'in electric wires'], ['Sr', 'that makes fireworks red'], ['Ag', 'in a silver spoon'],
+  ['I', 'in your thyroid'], ['Ba', 'in a hospital X-ray drink'], ['Eu', 'that makes euro banknotes glow under UV'],
+  ['Pt', 'in a car catalytic converter'], ['Au', 'in a wedding ring'], ['Pb', 'in an old water pipe'], ['U', 'in a nuclear reactor']];
+const bySym = Object.fromEntries(ELS.map(e => [e[1], e]));
+let originSel = 'Fe', quizIdx = -1, quizDone = false, quizRight = 0, quizN = 0;
+
+function main(e) { return Object.entries(e[5]).sort((a, b) => b[1] - a[1])[0][0]; }
+function strips(frac, horiz) {
+  const parts = ORDER.filter(k => frac[k] > 0);
+  let acc = 0; const stops = [];
+  for (const k of parts) { stops.push(`${SRC[k][1]} ${acc * 100}%`); acc += frac[k]; stops.push(`${SRC[k][1]} ${acc * 100}%`); }
+  return `linear-gradient(${horiz ? '90deg' : '0deg'}, ${stops.join(', ')})`;
+}
+function barHTML(frac) {
+  return '<div class="bar">' + ORDER.filter(k => frac[k] > 0).map(k =>
+    `<div style="width:${frac[k] * 100}%;background:${SRC[k][1]}">${frac[k] >= 0.12 ? Math.round(frac[k] * 100) + '%' : ''}</div>`).join('') + '</div>';
+}
+function infoHTML(e) {
+  const rows = ORDER.filter(k => e[5][k] > 0).sort((a, b) => e[5][b] - e[5][a])
+    .map(k => `<p><i style="display:inline-block;width:12px;height:12px;border-radius:3px;background:${SRC[k][1]};margin-right:6px"></i><b>${Math.round(e[5][k] * 100)}%</b> ${SRC[k][0]} <span class="quiet">— ${SRC[k][2]}</span></p>`).join('');
+  return `<h2>${e[2][0].toUpperCase() + e[2].slice(1)} (${e[1]}, Z = ${e[0]})</h2>${barHTML(e[5])}${rows}`;
+}
+function renderOrigin() {
+  const t = document.getElementById('ptable');
+  if (!t.childElementCount) {
+    const cells = {};
+    for (const e of ELS) cells[e[3] + ',' + e[4]] = e;
+    for (let r = 0; r < 10; r++) for (let c = 0; c < 18; c++) {
+      const e = cells[r + ',' + c];
+      if (r === 7) { if (c === 0) { const d = document.createElement('div'); d.style.gridColumn = '1 / -1'; d.style.height = '6px'; t.appendChild(d); } continue; }
+      if (!e) { const d = document.createElement('div'); d.className = 'gap'; t.appendChild(d); continue; }
+      const b = document.createElement('button');
+      b.className = 'el'; b.id = 'el-' + e[1]; b.title = e[2]; b.style.background = strips(e[5], false);
+      b.innerHTML = `<span>${e[1]}</span>`; b.onclick = () => { originSel = e[1]; renderOrigin(); };
+      t.appendChild(b);
+    }
+    document.getElementById('legend').innerHTML = ORDER.map(k => `<span><i style="background:${SRC[k][1]}"></i>${SRC[k][0]}</span>`).join('');
+    document.getElementById('quizChoices').innerHTML = ORDER.slice(0, 6).map(k =>
+      `<button id="ch-${k}" onclick="answerQuiz('${k}')"><i style="display:inline-block;width:10px;height:10px;border-radius:2px;background:${SRC[k][1]};margin-right:6px"></i>${SRC[k][0]}</button>`).join('');
+    nextQuiz();
+  }
+  document.querySelectorAll('.el.sel').forEach(x => x.classList.remove('sel'));
+  const s = document.getElementById('el-' + originSel); if (s) s.classList.add('sel');
+  document.getElementById('elInfo').innerHTML = infoHTML(bySym[originSel]);
+}
+function nextQuiz() {
+  let i; do { i = Math.floor(Math.random() * QUIZ.length); } while (i === quizIdx && QUIZ.length > 1);
+  quizIdx = i; quizDone = false;
+  const [s, ctx] = QUIZ[i], e = bySym[s];
+  document.getElementById('quizEl').textContent = `${e[2][0].toUpperCase() + e[2].slice(1)} (${s})`;
+  document.getElementById('quizHint').textContent = `… ${ctx}. Where was most of it made?`;
+  document.getElementById('quizResult').innerHTML = '';
+  for (const k of ORDER.slice(0, 6)) { const b = document.getElementById('ch-' + k); if (b) b.className = ''; }
+}
+function answerQuiz(k) {
+  if (quizDone) return;
+  const e = bySym[QUIZ[quizIdx][0]], best = main(e), ok = (e[5][k] || 0) >= e[5][best] - 1e-9;
+  const partly = !ok && (e[5][k] || 0) >= 0.2;
+  quizDone = true; quizN++; if (ok) quizRight++;
+  for (const kk of ORDER.slice(0, 6)) {
+    const b = document.getElementById('ch-' + kk);
+    if ((e[5][kk] || 0) >= e[5][best] - 1e-9) b.className = 'right'; else if (kk === k) b.className = 'wrong';
+  }
+  document.getElementById('quizScore').textContent = `Score: ${quizRight} / ${quizN}`;
+  document.getElementById('quizResult').innerHTML =
+    `<p class="verdict ${ok ? 'ok' : 'bad'}">${ok ? 'Yes!' : partly ? 'Partly — but not the main source.' : 'Not this time.'}</p>` + infoHTML(e);
+  originSel = e[1]; renderOrigin();
+}
+
 /* ---------------- start ---------------- */
+function tabFromHash() { return ['chef', 'origin'].includes(location.hash.slice(1)) ? location.hash.slice(1) : 'cluster'; }
 window.addEventListener('resize', () => { renderCluster(); renderChef(); });
-window.addEventListener('hashchange', () => show(location.hash === '#chef' ? 'chef' : 'cluster'));
+window.addEventListener('hashchange', () => show(tabFromHash()));
 renderChef();
-show(location.hash === '#chef' ? 'chef' : 'cluster');
+show(tabFromHash());
 </script>
 </body>
 </html>
