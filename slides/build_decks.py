@@ -20,7 +20,7 @@ GREY = RGBColor(0x9A, 0x9A, 0xB5); ORANGE = RGBColor(0xF5, 0xA6, 0x23); PINK = R
 GREEN = RGBColor(0x5C, 0xC8, 0xA1)
 FONT = "Montserrat"
 W, H = Inches(13.333), Inches(7.5)
-SLIDO_CODES = {"L1": "#2458697", "L2": "#1642685"}   # Slido event codes
+SLIDO_CODES = {"L1": "#2458698", "L2": "#1642685"}   # Slido event codes
 
 
 class Deck:

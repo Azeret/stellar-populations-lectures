@@ -425,8 +425,13 @@ if 'google.colab' in sys.modules:
 
 
 import sys as _sys
-from nb_extra import NB03_SLIDO, NB05, NB06, NB07
-nb03.cells += nb(NB03_SLIDO).cells
+from nb_extra import NB03_SLIDO, NB05, NB06, NB07, NB02_INSIDE, NB03_FULL, NB04_FULL
+# notebook 02: insert the 'open the box' section right after the setup cell
+nb02.cells = nb02.cells[:2] + nb(NB02_INSIDE).cells + nb02.cells[2:]
+# notebook 03: new detailed intro/sections + the kitchen game cells of the old version + Slido answers
+_kitchen = [c for c in nb03.cells if 'def kitchen' in c.source or 'serve(' in c.source or c.source.startswith('**Order D')]
+nb03 = nb(NB03_FULL); nb03.cells += _kitchen + nb(NB03_SLIDO).cells
+nb04 = nb(NB04_FULL)
 nb05, nb06, nb07 = nb(NB05), nb(NB06), nb(NB07)
 ONLY = _sys.argv[1:]          # e.g. python build_notebooks.py 03 05  -> only those notebooks
 for name, n, pip in [("01_IMF.ipynb", nb01, ""), ("02_SSP_with_FaSTAR.ipynb", nb02, "fastar-astro"),

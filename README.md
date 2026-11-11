@@ -13,7 +13,7 @@ Hands-on material for two lectures in the *Galaxies* course at Masaryk Universit
 
 | Lecture | Join (students) | Code |
 |---|---|---|
-| 1 · Stellar populations & the IMF | https://app.sli.do/event/jRyr3ddxdb6duWCkxqP741 | slido.com **#2458697** |
+| 1 · Stellar populations & the IMF | https://app.sli.do/event/fAi3QWgSvPf3EnTHoNAEUi | slido.com **#2458698** |
 | 2 · Chemical evolution & the [Mg/Fe] clock | https://app.sli.do/event/s76TJyV1cGRxvwUWRgkj4F | slido.com **#1642685** |
 
 ## Notebooks (click the badge to run in your browser with Google Colab)
