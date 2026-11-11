@@ -35,8 +35,8 @@ def draw(quiz=False):
     plt.rcdefaults()
     mpl.rcParams.update({"figure.facecolor": BG, "savefig.facecolor": BG, "text.color": FG, "font.family": "DejaVu Sans"})
     top = 12.2 if quiz else 9.3
-    fig = plt.figure(figsize=(11.2, 6.8 if not quiz else 7.6)); ax = fig.add_axes([0.01, 0.02, 0.98, 0.96])
-    ax.set_xlim(-6.75, 0.85); ax.set_ylim(0.2, top); ax.axis("off")
+    fig = plt.figure(figsize=(9.5, 6.0 if not quiz else 6.7)); ax = fig.add_axes([0.01, 0.02, 0.98, 0.96])
+    ax.set_xlim(-6.75, 0.85); ax.set_ylim(0.0, top); ax.axis("off")
 
     # name bands
     for lo, hi, name, c in BANDS:
@@ -63,10 +63,10 @@ def draw(quiz=False):
     ax.text(-6.7, 3.65, "Z\n(mass fraction)", fontsize=13, color=BLUE, va="center", fontweight="bold")
 
     # how to convert + trap
-    ax.text(-6.7, 2.25, "convert:   Z / Z☉ = 10^[M/H]      Z = 0.0134 × 10^[M/H]      [M/H] = log₁₀(Z / 0.0134)", fontsize=13.5, color=FG)
-    ax.text(-6.7, 1.35, "trap: older papers and isochrones call Z = 0.02 \"solar\"; today Z☉ ≈ 0.013–0.014, so Z = 0.02 is [M/H] ≈ +0.17",
-            fontsize=12, color=GREY)
-    ax.text(-6.7, 0.55, "names: Beers & Christlieb (2005);  Z☉ = 0.0134: Asplund et al. (2009)", fontsize=10.5, color=GREY)
+    ax.text(-6.7, 2.25, "convert:   Z / Z☉ = 10^[M/H]       Z = 0.0134 × 10^[M/H]", fontsize=14, color=FG)
+    ax.text(-6.7, 1.25, "trap: older papers / isochrones call Z = 0.02 \"solar\";\ntoday Z☉ ≈ 0.013–0.014, so Z = 0.02 is [M/H] ≈ +0.17",
+            fontsize=12.5, color=GREY, va="center")
+    ax.text(-6.7, 0.3, "names: Beers & Christlieb (2005);  Z☉ = 0.0134: Asplund et al. (2009)", fontsize=10.5, color=GREY)
 
     if quiz:
         # (x on the scale, letter, value, colour, letter x, letter y)
