@@ -3,6 +3,7 @@ scipy
 matplotlib
 jupyterlab
 fastar-astro
+ppxf          # full-spectrum fitting (notebook 07)
 # galevo / GalIMF (notebook 04)
 astropy
 pandas
