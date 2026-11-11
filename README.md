@@ -7,7 +7,7 @@ Hands-on material for two lectures in the *Galaxies* course at Masaryk Universit
 **https://azeret.github.io/stellar-populations-lectures/**
 
 1. **Build a star cluster** — give birth to stars drawn from the Kroupa IMF and see where the mass sits (Lecture 1).
-2. **Galaxy chef** — spend 8 units of star formation to fill customers' [Mg/Fe] orders (Lecture 2).
+2. **Galaxy clock** — set when your galaxy forms its stars, watch SN II and SN Ia fill the gas with Mg and Fe, and race to an [Mg/Fe] target (Lecture 2).
 
 ## 💬 Class Slido
 
@@ -22,7 +22,7 @@ Hands-on material for two lectures in the *Galaxies* course at Masaryk Universit
 |---|---|---|---|
 | `01_IMF.ipynb` | 1 | Draw stars from the IMF; where are the number, mass and light; most massive star vs cluster mass | [![Open in Colab](https://colab.research.google.com/assets/colab-badge.svg)](https://colab.research.google.com/github/Azeret/stellar-populations-lectures/blob/main/notebooks/01_IMF.ipynb) |
 | `02_SSP_with_FaSTAR.ipynb` | 1 | Spectra and M/L of simple stellar populations vs age, metallicity and IMF; stochastic sampling | [![Open in Colab](https://colab.research.google.com/assets/colab-badge.svg)](https://colab.research.google.com/github/Azeret/stellar-populations-lectures/blob/main/notebooks/02_SSP_with_FaSTAR.ipynb) |
-| `03_toy_chemical_evolution.ipynb` | 2 | A 100-line one-zone model: why [Mg/Fe] is a clock, how the IMF moves the plateau, and Galaxy chef in code | [![Open in Colab](https://colab.research.google.com/assets/colab-badge.svg)](https://colab.research.google.com/github/Azeret/stellar-populations-lectures/blob/main/notebooks/03_toy_chemical_evolution.ipynb) |
+| `03_toy_chemical_evolution.ipynb` | 2 | A 100-line one-zone model: why [Mg/Fe] is a clock, how the IMF moves the plateau, and the kitchen game in code | [![Open in Colab](https://colab.research.google.com/assets/colab-badge.svg)](https://colab.research.google.com/github/Azeret/stellar-populations-lectures/blob/main/notebooks/03_toy_chemical_evolution.ipynb) |
 | `04_galevo_chemical_evolution.ipynb` | 2 | Real chemical-evolution runs with galevo (GalIMF), Kroupa IMF vs IGIMF | [![Open in Colab](https://colab.research.google.com/assets/colab-badge.svg)](https://colab.research.google.com/github/Azeret/stellar-populations-lectures/blob/main/notebooks/04_galevo_chemical_evolution.ipynb) |
 | `05_spectral_resolution.ipynb` | 1 (practice) | Convolution by hand, instrumental resolution, velocity dispersion, why line strengths drop with σ, noise | [![Open in Colab](https://colab.research.google.com/assets/colab-badge.svg)](https://colab.research.google.com/github/Azeret/stellar-populations-lectures/blob/main/notebooks/05_spectral_resolution.ipynb) |
 | `06_fitting_an_SSP_with_FaSTAR.ipynb` | 1 (practice) | Fit age and metallicity of a mock spectrum: χ² grid, posterior, the age–metallicity degeneracy, S/N | [![Open in Colab](https://colab.research.google.com/assets/colab-badge.svg)](https://colab.research.google.com/github/Azeret/stellar-populations-lectures/blob/main/notebooks/06_fitting_an_SSP_with_FaSTAR.ipynb) |

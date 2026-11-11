@@ -18,12 +18,14 @@ NB03_SLIDO = [
 Each cell reproduces one answer from the lecture with the toy model (or the galevo runs of notebook 04). The answer slides in the lecture show the same numbers.
 """),
 ("md", r"""
-### S2.3 — A star has 1/10 of the solar Fe/H. What is its [Fe/H]?
-$[\mathrm{Fe/H}] = \log_{10}(N_\mathrm{Fe}/N_\mathrm{H})_\star - \log_{10}(N_\mathrm{Fe}/N_\mathrm{H})_\odot$: logarithmic **and** relative to the Sun.
+### S2.3 — Four stars from four papers: which one is the most metal-poor?
+A: [Fe/H] = +0.3, B: Z = 0.02, C: [M/H] = −0.5, D: [Fe/H] = −2.0. Put them all on one scale: $[\mathrm{M/H}] \approx \log_{10}(Z/Z_\odot)$ with today's $Z_\odot = 0.0134$ (for a solar-scaled mix $[\mathrm{M/H}] = [\mathrm{Fe/H}]$). Names used in papers (Beers & Christlieb 2005): metal-poor < −1, very < −2, extremely < −3, ultra < −4.
 """),
 ("code", r"""
-for ratio in (0.01, 0.1, 0.5, 1, 2):
-    print(f'{ratio:>5} x the solar Fe/H  ->  [Fe/H] = {np.log10(ratio):+.2f}')
+Zsun = 0.0134
+stars = {'A [Fe/H] = +0.3': 0.3, 'B Z = 0.02': np.log10(0.02 / Zsun), 'C [M/H] = -0.5': -0.5, 'D [Fe/H] = -2.0': -2.0}
+for name, mh in sorted(stars.items(), key=lambda kv: kv[1]):
+    print(f'{name:18s} -> [M/H] = {mh:+.2f},  Z = {Zsun * 10**mh:.5f},  {10**mh:.3g} x the Sun')
 """),
 ("md", r"""
 ### S2.5 and S2.8 — Where is the knee of a slowly star-forming dwarf?
@@ -943,8 +945,8 @@ plt.xlim(-3, 0.5); plt.xlabel('[Fe/H]'); plt.ylabel('[Mg/Fe]'); plt.legend(fonts
 ("md", r"""
 **The degeneracy:** a high [Mg/Fe] can mean *fast* star formation **or** a *top-heavy* IMF. How could you tell them apart? (Hints: metallicity, other elements, the mass-to-light ratio from notebook 02.)
 
-## 5. Galaxy chef: the cosmic-kitchen game, now with orders to fill
-In the lecture you played one recipe on paper. Here you are the chef and the customers are picky.
+## 5. Bonus: the kitchen game, a round-by-round version of the Galaxy clock
+In class we played the *Galaxy clock* on the games page (azeret.github.io/stellar-populations-lectures, tab 2). This kitchen is the same physics in 8 coarse rounds, with picky customers.
 
 **Kitchen rules (same as on paper):** you have **8 units** of star formation to spend over **8 rounds** (1 round ≈ 250 Myr).
 Each unit makes **3 Mg + 1 Fe at once** (SN II) and books SN Ia iron for later: **+1 Fe** one round later, **+1** two rounds later, **+1** four rounds later (a coarse $1/t$ DTD).
