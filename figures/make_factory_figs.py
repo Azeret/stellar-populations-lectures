@@ -166,7 +166,8 @@ def overview():
     for i, (k, *cells) in enumerate(rows):
         y = 6.75 - i * 1.25
         ax.add_patch(Rectangle((0.3, y - 0.45), 0.4, 0.9, color=SOURCES[k][1]))
-        ax.text(cols[0], y, SOURCES[k][0].replace(" ", "\n", 1) if len(SOURCES[k][0]) > 14 else SOURCES[k][0], va="center", fontsize=18, fontweight="bold", color=SOURCES[k][1] if k != "cr" else INK)
+        lab = {"ccsn": "SN II\n(core collapse)", "ia": "SN Ia\n(white dwarf)", "agb": "AGB stars", "r": "NS mergers"}.get(k, SOURCES[k][0])
+        ax.text(cols[0], y, lab, va="center", fontsize=18, fontweight="bold", color=SOURCES[k][1] if k != "cr" else INK)
         for x, c in zip(cols[1:], cells):
             ax.text(x, y, c, va="center", fontsize=17)
         ax.plot([0.3, 17.7], [y - 0.62, y - 0.62], color="#3a3956", lw=1)
